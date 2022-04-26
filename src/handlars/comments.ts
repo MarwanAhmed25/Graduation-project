@@ -7,7 +7,6 @@ import isAdmin from '../utils/isAdmin';
 //import {middelware} from '../service/middelware';
 //import {commentSchema} from '../service/validation';
 
-//********************************************************** */
 const secret = config.token;
 const comment_obj = new Comment();
 //return all comments for one product with id in request params from database
@@ -111,8 +110,6 @@ async function create(req: Request, res: Response) {
 async function delete_(req: Request, res: Response) {
     let isTrue = false;
     const token = req.headers.token as unknown as string;
-    const admin_email = req.headers.admin_email as unknown as string;
-    const admin_password = req.headers.admin_password as unknown as string;
 
     try {
         if(token){
@@ -123,7 +120,7 @@ async function delete_(req: Request, res: Response) {
 
         } else return res.status(400).json('login required.');
 
-        const isA = isAdmin(admin_email as string ,admin_password as string,token);
+        const isA = isAdmin('','',token);
         
         const user = parseJwt(token).user;
         //if token is exist will delete the comment with product_id and id in params

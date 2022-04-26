@@ -76,12 +76,12 @@ async function update(req: Request, res: Response) {
 
     try {
         const user_ = await user_obj.show(id);//get user from database with id in request params
-        //console.log(user_);
+        console.log(user_);
         if(user_ == undefined)
             return res.status(400).json('row not exist');
 
         //check if request from super admin 
-        if(admin_email_exist === admin_email && admin_password_exist === admin_password){
+        if(admin_email_exist == admin_email && admin_password_exist == admin_password){
 
             if(req.body.f_name)
                 user_.f_name=req.body.f_name;
@@ -89,8 +89,6 @@ async function update(req: Request, res: Response) {
                 user_.l_name=req.body.l_name;
             if(req.body.email)
                 user_.email=req.body.email;
-            if(req.body.password)
-                user_.password=req.body.password;
             if(req.body.birthday)
                 user_.birthday=req.body.birthday;
             if(req.body.phone)
@@ -277,3 +275,4 @@ function mainRoutes(app: Application) {
 }
 
 export default mainRoutes;
+

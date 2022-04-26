@@ -203,7 +203,7 @@ async function login(req: Request, res: Response) {
 //send mail to the user which sending in request body
 async function forget_password(req: Request, res: Response) {
     try {
-        const { email } = req.body;
+        const email = req.headers.email as unknown as string;
         //check for the user with sending email
         const resault = await user_obj.forget_password(email);
                 
@@ -281,7 +281,7 @@ async function reset_password(req: Request, res: Response) {
 } */
 //main routes of user model
 function mainRoutes(app: Application) {
-    app.post('/auth/login', login);
+    app.get('/auth/login', login);
     app.get('/auth/forget_password',forget_password);
     app.post('/auth/reset_password', reset_password);
     //
