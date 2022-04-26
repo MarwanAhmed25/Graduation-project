@@ -1,9 +1,9 @@
 - Base URL : https://app4125.herokuapp.com/
 - super admin 
-    1- admin_email "marwan@gmail.com"
-    2- admin_password: "marwan"
+    - admin_email: "marwan@gmail.com"
+    - admin_password: "marwan"
 
-## admin model 
+## Admin model 
 
 ```
 index: GET /admins
@@ -63,7 +63,7 @@ reset_password: POST /admins/auth/reset_password
 ```
 
 
-## user model 
+## User model 
 ```
 index: GET /users
 
@@ -139,7 +139,7 @@ reset_password: POST /auth/reset_password
 
 
 
-## types model 
+## Types model 
 ```
 index: GET /types
 
@@ -182,7 +182,7 @@ delete: DELETE /types/:id
 
 
 
-## links model 
+## Links model 
 ```
 index: GET /organization/:organization_id/links
 
@@ -220,7 +220,7 @@ delete: DELETE /organization/:organization_id/links/:id
 ```
 
 
-## comments model 
+## Comments model 
 ```
 index: GET /charity/:charity_id/comments
 
@@ -259,7 +259,7 @@ delete: DELETE /charity/:charity_id/comments/:id
 
 
 
-## charity model 
+## Charity model 
 ```
 index: GET /charity
 
