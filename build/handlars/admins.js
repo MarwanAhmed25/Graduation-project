@@ -7,20 +7,21 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const nodemailer_1 = __importDefault(require("nodemailer"));
 const admins_1 = require("../models/admins");
 const jwtParsing_1 = __importDefault(require("../utils/jwtParsing"));
+const config_1 = __importDefault(require("../config/config"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 //import {middelware} from '../service/middelware';
 const bcrypt_1 = __importDefault(require("bcrypt"));
-const dotenv_1 = __importDefault(require("dotenv"));
-dotenv_1.default.config();
-const secret = process.env.token;
-const admin_password_exist = process.env.admin_password || 'marwan';
-const admin_email_exist = process.env.admin_email || 'marwan@gmail.com';
+const secret = config_1.default.token;
+const extra = config_1.default.extra;
+const round = config_1.default.round;
+const admin_password_exist = config_1.default.admin_password;
+const admin_email_exist = config_1.default.admin_email;
 const user_obj = new admins_1.Admin();
 const transporter = nodemailer_1.default.createTransport({
     service: 'gmail',
     auth: {
-        user: process.env.user_email,
-        pass: process.env.user_password
+        user: config_1.default.user_email,
+        pass: config_1.default.user_password
     }
 });
 //return a json data for all users in database [allowed only for admins]
@@ -176,7 +177,7 @@ async function forget_password(req, res) {
                 const token = jsonwebtoken_1.default.sign({ user: resault }, secret);
                 const url = ''; //url will provid from front end developer
                 const mailOptions = {
-                    from: process.env.user_email,
+                    from: config_1.default.user_email,
                     to: email,
                     subject: 'Reset Possword',
                     text: `${url}?token=${token}`
@@ -211,7 +212,7 @@ async function reset_password(req, res) {
         if (token) {
             const permession = jsonwebtoken_1.default.verify(token, secret);
             if (permession) {
-                const hash = bcrypt_1.default.hashSync(new_password + process.env.extra, parseInt(process.env.round));
+                const hash = bcrypt_1.default.hashSync(new_password + extra, round);
                 user.password = hash;
                 const result = user_obj.update(user);
                 const newToken = jsonwebtoken_1.default.sign({ user: result }, secret);

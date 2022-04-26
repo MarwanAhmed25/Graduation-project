@@ -4,8 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const pg_1 = require("pg");
-const dotenv_1 = __importDefault(require("dotenv"));
-dotenv_1.default.config();
+const config_1 = __importDefault(require("./config/config"));
 //const { db_host, db_user, db_password, db_name } = process.env;
 //const { test_db_host, test_db_user, test_db_password, test_db_name } = process.env;
 //const environment = process.env.environment ||'production'; 
@@ -36,7 +35,7 @@ dotenv_1.default.config();
 
 } */
 const Client = new pg_1.Pool({
-    connectionString: process.env.DATABASE_URL || 'postgres://yaeobcniqomegb:77ed86befd3929c5ec5bab3e5a3d13b0082ed1e58243b4a15e34a27a1836558a@ec2-52-18-116-67.eu-west-1.compute.amazonaws.com:5432/d4c0lbm1rr34tg',
+    connectionString: config_1.default.DATABASE_URL,
     ssl: {
         rejectUnauthorized: false
     }

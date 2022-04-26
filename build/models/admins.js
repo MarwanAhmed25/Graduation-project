@@ -5,10 +5,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Admin = void 0;
 const database_1 = __importDefault(require("../database"));
-const dotenv_1 = __importDefault(require("dotenv"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
-// admins(id , f_name,l_name , email, password ,birthday, phone ,status varchar(50), created_at );
-dotenv_1.default.config();
+const config_1 = __importDefault(require("../config/config"));
 class Admin {
     async index() {
         try {
@@ -37,7 +35,7 @@ class Admin {
     async create(u) {
         try {
             //hashin password using round and extra from .env file and password from request.body
-            const hash = bcrypt_1.default.hashSync(u.password + process.env.extra, parseInt(process.env.round));
+            const hash = bcrypt_1.default.hashSync(u.password + config_1.default.extra, parseInt(config_1.default.round));
             const conn = await database_1.default.connect();
             const sql = 'insert into admins (f_name, l_name, email, password, birthday, phone, status,created_at, salary,address) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)RETURNING*;';
             const res = await conn.query(sql, [u.f_name, u.l_name, u.email, hash, u.birthday, u.phone, u.status, new Date(), u.salary, u.address]);
@@ -78,7 +76,7 @@ class Admin {
             const sql = 'select * from admins where email=($1);';
             const res = await conn.query(sql, [email]);
             if (res.rows.length > 0) {
-                const i = await bcrypt_1.default.compare(password + process.env.extra, res.rows[0].password);
+                const i = await bcrypt_1.default.compare(password + config_1.default.extra, res.rows[0].password);
                 if (i) {
                     return res.rows[0];
                 }

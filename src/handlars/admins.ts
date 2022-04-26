@@ -3,22 +3,24 @@ import { Application, Response, Request } from 'express';
 import nodemailer from 'nodemailer';
 import { Admin, admin } from '../models/admins';
 import parseJwt from '../utils/jwtParsing';
+import config from '../config/config';
 import jwt from 'jsonwebtoken';
 //import {middelware} from '../service/middelware';
 import bcrypt from 'bcrypt';
-import dotenv from 'dotenv';
 
-dotenv.config();
-const secret: string = process.env.token as unknown as string;
-const admin_password_exist = process.env.admin_password || 'marwan';
-const admin_email_exist = process.env.admin_email || 'marwan@gmail.com';
+
+const secret: string = config.token as unknown as string;
+const extra: string = config.extra as unknown as string;
+const round: number = config.round as unknown as number;
+const admin_password_exist = config.admin_password;
+const admin_email_exist = config.admin_email;
 const user_obj = new Admin();
 
 const transporter = nodemailer.createTransport({
     service: 'gmail', 
     auth: {
-        user: process.env.user_email,
-        pass: process.env.user_password
+        user: config.user_email,
+        pass: config.user_password
     }
 });
   
@@ -195,7 +197,7 @@ async function forget_password(req: Request, res: Response) {
                 const token = jwt.sign({ user: resault }, secret);
                 const url = ''; //url will provid from front end developer
                 const mailOptions = {
-                    from: process.env.user_email,
+                    from: config.user_email,
                     to: email,
                     subject: 'Reset Possword',
                     text:  `${url}?token=${token}`
@@ -227,7 +229,7 @@ async function reset_password(req: Request, res: Response) {
         if(token){
             const permession = jwt.verify(token,secret);
             if(permession){
-                const hash = bcrypt.hashSync(new_password + process.env.extra, parseInt(process.env.round as string));
+                const hash = bcrypt.hashSync(new_password + extra, round);
                 user.password = hash;
                 const result = user_obj.update(user);
                 const newToken = jwt.sign({ user: result }, secret);

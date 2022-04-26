@@ -2,14 +2,13 @@ import { Application, Response, Request } from 'express';
 import { Comment, comment } from '../models/comments';
 import parseJwt from '../utils/jwtParsing';
 import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
+import config from '../config/config';
 import isAdmin from '../utils/isAdmin';
 //import {middelware} from '../service/middelware';
 //import {commentSchema} from '../service/validation';
 
-dotenv.config();
-
-const secret = process.env.token;
+//********************************************************** */
+const secret = config.token;
 const comment_obj = new Comment();
 //return all comments for one product with id in request params from database
 async function index(req: Request, res: Response) {

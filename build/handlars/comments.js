@@ -6,12 +6,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const comments_1 = require("../models/comments");
 const jwtParsing_1 = __importDefault(require("../utils/jwtParsing"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const dotenv_1 = __importDefault(require("dotenv"));
+const config_1 = __importDefault(require("../config/config"));
 const isAdmin_1 = __importDefault(require("../utils/isAdmin"));
 //import {middelware} from '../service/middelware';
 //import {commentSchema} from '../service/validation';
-dotenv_1.default.config();
-const secret = process.env.token;
+//********************************************************** */
+const secret = config_1.default.token;
 const comment_obj = new comments_1.Comment();
 //return all comments for one product with id in request params from database
 async function index(req, res) {
