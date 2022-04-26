@@ -64,7 +64,7 @@ export class Admin {
 
             const conn = await Client.connect();
             const sql =
-        'update admins set f_name=($1), l_name=($2),email=($3),birthday=($4),phone=($5),salary=($6),address=($7) where id=($8)RETURNING*; ';
+        'update admins set f_name=($1), l_name=($2),email=($3),birthday=($4),phone=($5),salary=($6),address=($7),status=($9) where id=($8)RETURNING*; ';
             const res = await conn.query(sql, [u.f_name, u.l_name, u.email, u.birthday, u.phone, u.salary,u.address, u.id,u.status]);
             conn.release();
             return res.rows[0];
@@ -91,10 +91,12 @@ export class Admin {
             const conn = await Client.connect();
             const sql = 'select * from admins where email=($1);';
             const res = await conn.query(sql, [email]);
+            console.log(res.rows[0]);
             
             if (res.rows.length > 0) {
                 const i = await bcrypt.compare(password + config.extra, res.rows[0].password);
-
+                console.log(i);
+                
                 if(i)
                 {                        
                     return res.rows[0];

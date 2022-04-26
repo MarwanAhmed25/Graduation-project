@@ -6,10 +6,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const dotenv_1 = __importDefault(require("dotenv"));
 const jwtParsing_1 = __importDefault(require("./jwtParsing"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const config_1 = __importDefault(require("../config/config"));
 dotenv_1.default.config();
-const admin_email = process.env.admin_email;
-const admin_password = process.env.admin_password;
-const secret = process.env.token;
+const admin_email = config_1.default.admin_email;
+const admin_password = config_1.default.admin_password;
+const secret = config_1.default.token;
 //return true if the token or the email and passwrod for super admin or admin 
 function isAdmin(email, password, token) {
     if (email == admin_email && password == admin_password) {

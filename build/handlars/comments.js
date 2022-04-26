@@ -10,7 +10,6 @@ const config_1 = __importDefault(require("../config/config"));
 const isAdmin_1 = __importDefault(require("../utils/isAdmin"));
 //import {middelware} from '../service/middelware';
 //import {commentSchema} from '../service/validation';
-//********************************************************** */
 const secret = config_1.default.token;
 const comment_obj = new comments_1.Comment();
 //return all comments for one product with id in request params from database
@@ -112,8 +111,6 @@ async function create(req, res) {
 async function delete_(req, res) {
     let isTrue = false;
     const token = req.headers.token;
-    const admin_email = req.headers.admin_email;
-    const admin_password = req.headers.admin_password;
     try {
         if (token) {
             const permession = jsonwebtoken_1.default.verify(token, secret);
@@ -125,7 +122,7 @@ async function delete_(req, res) {
         }
         else
             return res.status(400).json('login required.');
-        const isA = (0, isAdmin_1.default)(admin_email, admin_password, token);
+        const isA = (0, isAdmin_1.default)('', '', token);
         const user = (0, jwtParsing_1.default)(token).user;
         //if token is exist will delete the comment with product_id and id in params
         if (isA || isTrue) {
