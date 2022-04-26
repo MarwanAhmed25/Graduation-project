@@ -1,11 +1,9 @@
 import Client from '../database';
-import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
+import config from '../config/config';
 
 // admins(id , f_name,l_name , email, password ,birthday, phone ,status varchar(50), created_at );
 
-
-dotenv.config();
 export type admin = {
   id?: number;
   f_name?: string;
@@ -49,7 +47,7 @@ export class Admin {
         try {
 
             //hashin password using round and extra from .env file and password from request.body
-            const hash = bcrypt.hashSync(u.password + process.env.extra, parseInt(process.env.round as string));
+            const hash = bcrypt.hashSync(u.password + config.extra, parseInt(config.round as string));
             const conn = await Client.connect();
             const sql =
         'insert into admins (f_name, l_name, email, password, birthday, phone, status,created_at, salary,address) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)RETURNING*;';
@@ -95,7 +93,7 @@ export class Admin {
             const res = await conn.query(sql, [email]);
             
             if (res.rows.length > 0) {
-                const i = await bcrypt.compare(password + process.env.extra, res.rows[0].password);
+                const i = await bcrypt.compare(password + config.extra, res.rows[0].password);
 
                 if(i)
                 {                        

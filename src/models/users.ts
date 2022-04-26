@@ -1,12 +1,10 @@
 import Client from '../database';
-import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
 import { type } from './types';
-
+import config_ from '../config/config';
 //users(id,f_name,l_name,email,rate,description,images,role,password,birthday,phone,status,created_at,city,admin_id,address,type_id );
 
 
-dotenv.config();
 export type user = {
   id?: number;
   f_name?: string;
@@ -56,7 +54,7 @@ export class User {
         try {
 
             //hashin password using round and extra from .env file and password from request.body
-            const hash = bcrypt.hashSync(u.password + process.env.extra, parseInt(process.env.round as string));
+            const hash = bcrypt.hashSync(u.password + config_.extra, parseInt(config_.round as string));
             const conn = await Client.connect();
             const sql =
         'insert into users (f_name, l_name, email, password, birthday, phone, status,created_at, city,address,type_id,admin_id,rate,role,images,description) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)RETURNING*;';
@@ -72,7 +70,7 @@ export class User {
         try {
 
             //hashin password using round and extra from .env file and password from request.body
-            const hash = bcrypt.hashSync(u.password + process.env.extra, parseInt(process.env.round as string));
+            const hash = bcrypt.hashSync(u.password + config_.extra, parseInt(config_.round as string));
             const conn = await Client.connect();
             const sql =
         'update users set f_name=($1), l_name=($2),email=($3),birthday=($4),phone=($5),city=($6),address=($7), status=($9),rate=($10),password=($11),type_id=($12),admin_id=($13),role=($14),images=($15),description=($16) where id=($8)RETURNING*; ';
@@ -104,7 +102,7 @@ export class User {
             const res = await conn.query(sql, [email]);
             
             if (res.rows.length > 0) {
-                const i = await bcrypt.compare(password + process.env.extra, res.rows[0].password);
+                const i = await bcrypt.compare(password + config_.extra, res.rows[0].password);
 
                 if(i)
                 {                        

@@ -3,21 +3,19 @@ import { Application, Response, Request } from 'express';
 import nodemailer from 'nodemailer';
 import { User, user } from '../models/users';
 import parseJwt from '../utils/jwtParsing';
-import isAdminFun from '../utils/isAdmin';
 import jwt from 'jsonwebtoken';
 //import {middelware} from '../service/middelware';
 import bcrypt from 'bcrypt';
-import dotenv from 'dotenv';
+import config from '../config/config';
 
-dotenv.config();
-const secret: string = process.env.token as unknown as string;
+const secret: string = config.token as unknown as string;
 const user_obj = new User();
 
 const transporter = nodemailer.createTransport({
     service: 'gmail', 
     auth: {
-        user: process.env.user_email,
-        pass: process.env.user_password
+        user: config.user_email,
+        pass: config.user_password
     }
 });
   
@@ -215,7 +213,7 @@ async function forget_password(req: Request, res: Response) {
                 const token = jwt.sign({ user: resault }, secret);
                 const url = ''; //url will provid from front end developer
                 const mailOptions = {
-                    from: process.env.user_email,
+                    from: config.user_email,
                     to: email,
                     subject: 'Reset Possword',
                     text:  `${url}?token=${token}`
@@ -247,7 +245,7 @@ async function reset_password(req: Request, res: Response) {
         if(token){
             const permession = jwt.verify(token,secret);
             if(permession){
-                const hash = bcrypt.hashSync(new_password + process.env.extra, parseInt(process.env.round as string));
+                const hash = bcrypt.hashSync(new_password + config.extra, parseInt(config.round as string));
                 user.password = hash;
                 const result = user_obj.update(user);
                 const newToken = jwt.sign({ user: result }, secret);
