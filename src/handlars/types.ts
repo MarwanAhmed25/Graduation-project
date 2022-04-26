@@ -49,6 +49,8 @@ async function update(req: Request, res: Response) {
             
             if(req.body.description)
                 t.description = req.body.description;
+            if(req.body.image)
+                t.image = req.body.image;
             //update new data to the database and return new data
             const resault = await type_obj.update(t);
             res.status(200).json(resault);
@@ -70,7 +72,8 @@ async function create(req: Request, res: Response) {
         if (isAdmin) {
             const t: type = {
                 type: req.body.type,
-                description:req.body.description
+                description:req.body.description,
+                image:req.body.image
             };
             //create new brand to the database and return new data
             const resault = await type_obj.create(t);
