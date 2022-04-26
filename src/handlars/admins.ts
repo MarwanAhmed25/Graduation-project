@@ -27,40 +27,51 @@ const transporter = nodemailer.createTransport({
 
 //return a json data for all users in database [allowed only for admins]
 async function index(req: Request, res: Response) {
-    
-    try {
-        const resault = await user_obj.index();
-        res.status(200).json(resault);
-    } catch (e) {
-        res.status(400).json(`${e}`);
-    }
-    
+    const admin_email = req.headers.admin_email as unknown as string;
+    const admin_password = req.headers.admin_password as unknown as string;
+
+    //check if request from super admin 
+    if(admin_email_exist === admin_email && admin_password_exist === admin_password){
+        try {
+            const resault = await user_obj.index();
+            res.status(200).json(resault);
+        } catch (e) {
+            res.status(400).json(`${e}`);
+        }
+    }else res.status(400).json('not allowed for you.');
 }
+    
+
 //return json data for a sungle user [allowed only for admins or user it self]
 async function show(req: Request, res: Response) {
-        
-    try {
-        const resault = await user_obj.show(parseInt(req.params.id));
-        if(resault == undefined)
-            return res.status(400).json('row not exist');
-        return res.status(200).json(resault);
-            
-    } catch (e) {                
-        return res.status(400).json(`${e}`);
-    }
-   
+    const admin_email = req.headers.admin_email as unknown as string;
+    const admin_password = req.headers.admin_password as unknown as string;
+
+    //check if request from super admin 
+    if(admin_email_exist === admin_email && admin_password_exist === admin_password){
+        try {
+            const resault = await user_obj.show(parseInt(req.params.id));
+            if(resault == undefined)
+                return res.status(400).json('row not exist');
+            return res.status(200).json(resault);
+                
+        } catch (e) {                
+            return res.status(400).json(`${e}`);
+        }
+    }else res.status(400).json('not allowed for you.');
 }
+   
+
 /*
 return token for updated user [user can update all his data except (coupon_id, status), 
     super admin can update only(coupon_id,status),
     admins can update (coupon_id, status when not == admin)]
     */
 async function update(req: Request, res: Response) {
-    let user_type = 'user';
+   
 
     const admin_email = req.headers.admin_email as unknown as string;
     const admin_password = req.headers.admin_password as unknown as string;
-    const token = req.headers.token as unknown as string;
     const id = parseInt(req.params.id);
 
     try {
@@ -68,23 +79,9 @@ async function update(req: Request, res: Response) {
         //console.log(user_);
         if(user_ == undefined)
             return res.status(400).json('row not exist');
+
         //check if request from super admin 
         if(admin_email_exist === admin_email && admin_password_exist === admin_password){
-            user_type = 'super_admin';
-        }else if(token){//check the token if exist to know if admin or user want to update
-            const permession = jwt.verify(token, secret);
-            
-            if(permession)
-            {
-                const user = parseJwt(token);
-                if(id != user.user.id){
-                    return res.status(200).json('not allowed this change');
-                }
-            }
-        }
-        
-        //if user send the request
-        if(user_type == 'user'){
 
             if(req.body.f_name)
                 user_.f_name=req.body.f_name;
@@ -100,14 +97,12 @@ async function update(req: Request, res: Response) {
                 user_.phone=req.body.phone;
             if(req.body.address)
                 user_.address=req.body.address;
-            
-        }else { //if super admin
-
             if(req.body.status)
                 user_.status = req.body.status;
             
         }
-        
+        else return res.status(400).json('not allowed for you.');
+
         //update and return the new token of updated user
         const resualt = await user_obj.update(user_);
         const new_token = jwt.sign({user:resualt},secret);
@@ -119,7 +114,9 @@ async function update(req: Request, res: Response) {
 }
 //create user by getting user data from request body
 async function create(req: Request, res: Response) {
-    
+
+    const admin_email = req.headers.admin_email as unknown as string;
+    const admin_password = req.headers.admin_password as unknown as string;
     //create type user with getting data to send to the database
     const u: admin = {
         f_name: req.body.f_name,
@@ -131,13 +128,15 @@ async function create(req: Request, res: Response) {
         phone: req.body.phone,
         status: 'active', //default value when create is active
         created_at: new Date(), //default value when create is date now
-        salary: Number(req.body.salary)
+        salary: Number(req.body.salary) //delete
     };
         //send user type to the database to create
-    try {                
-        const resault = await user_obj.create(u);
-        const token = jwt.sign({ user: resault }, secret);
-        res.status(200).json({user:resault,token});
+    try {    
+        if(admin_email_exist === admin_email && admin_password_exist === admin_password){            
+            const resault = await user_obj.create(u);
+            const token = jwt.sign({ user: resault }, secret);
+            res.status(200).json({user:resault,token});
+        }else res.status(400).json('not allowed for you.');
     } catch (e) {
         res.status(400).json(`${e}`);
     }
@@ -164,8 +163,8 @@ async function delete_(req: Request, res: Response) {
 //return token for user and login the user using email and password from request body
 async function login(req: Request, res: Response) {
     
-    const email = req.headers.admin_email as unknown as string;//required
-    const password = req.headers.admin_password as unknown as string;//required
+    const email = req.headers.email as unknown as string;//required
+    const password = req.headers.password as unknown as string;//required
     
     try {
 
@@ -187,7 +186,7 @@ async function login(req: Request, res: Response) {
 //send mail to the user which sending in request body
 async function forget_password(req: Request, res: Response) {
     try {
-        const { email } = req.body;
+        const email = req.headers.email as unknown as string;
         //check for the user with sending email
         const resault = await user_obj.forget_password(email);
                 
@@ -265,9 +264,9 @@ async function reset_password(req: Request, res: Response) {
 } */
 //main routes of user model
 function mainRoutes(app: Application) {
-    app.post('admins/auth/login', login);
-    app.get('admins/auth/forget_password',forget_password);
-    app.post('admins/auth/reset_password', reset_password);
+    app.get('/admins/auth/login', login);
+    app.get('/admins/auth/forget_password',forget_password);
+    app.post('/admins/auth/reset_password', reset_password);
     //
     app.get('/admins', index);
     app.get('/admins/:id', show);

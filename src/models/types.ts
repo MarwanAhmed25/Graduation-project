@@ -7,6 +7,7 @@ export type type = {
     id?: number;
     type: string;
     description?: string;
+    image:string;
   };
 
 export class Type {
@@ -38,8 +39,8 @@ export class Type {
         try {
             const conn = await Client.connect();
             const sql =
-        'insert into types (type, description) values($1, $2)RETURNING *;';
-            const res = await conn.query(sql, [t.type, t.description]);
+        'insert into types (type, description, image) values($1, $2, $3)RETURNING *;';
+            const res = await conn.query(sql, [t.type, t.description, t.image]);
             conn.release();
             return res.rows[0];
         } catch (e) {
@@ -51,8 +52,8 @@ export class Type {
         try {
             const conn = await Client.connect();
             const sql =
-        'update brand set type=($1), description=($2) where id=($3) RETURNING *; ';
-            const res = await conn.query(sql, [t.type, t.description, t.id]);
+        'update brand set type=($1), description=($2), image=($4) where id=($3) RETURNING *; ';
+            const res = await conn.query(sql, [t.type, t.description, t.id, t.image]);
             conn.release();
             return res.rows[0];
         } catch (e) {
