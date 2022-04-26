@@ -1,11 +1,12 @@
 import dotenv from 'dotenv';
 import parseJwt from './jwtParsing';
 import jwt from 'jsonwebtoken';
+import config_ from '../config/config';
 
 dotenv.config();
-const admin_email = process.env.admin_email as unknown as string;
-const admin_password = process.env.admin_password as unknown as string;
-const secret = process.env.token as unknown as string;
+const admin_email = config_.admin_email as unknown as string;
+const admin_password = config_.admin_password as unknown as string;
+const secret = config_.token as unknown as string;
 
 
 //return true if the token or the email and passwrod for super admin or admin 
