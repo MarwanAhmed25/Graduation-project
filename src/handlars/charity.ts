@@ -1,11 +1,14 @@
 import { Application, Response, Request } from 'express';
+import jwt from 'jsonwebtoken';
 import { Charity, charity } from '../models/charity';
 import isAdminFun from '../utils/isAdmin';
+import parseJwt from '../utils/jwtParsing';
+import config_ from '../config/config';
 //import { middelware } from '../service/middelware';
 //import { brandSchema } from '../service/validation';
 
 
-
+const secret: string = config_.token as unknown as string;
 const charity_obj = new Charity();
 //return all brands in database
 async function index(req: Request, res: Response) {
@@ -32,29 +35,38 @@ async function show(req: Request, res: Response) {
 //update and return the brand with id in request params and data in request body
 async function update(req: Request, res: Response) {
     const token = req.headers.token as unknown as string;
-    
+    let us, permession;
     try {
-        //check if the user super admin or admin
-        const isAdmin = isAdminFun('','',token);
+        
+        if(token){
+            permession = jwt.verify(token,secret);
+            us = parseJwt(token);
+        }else
+            return res.status(400).json('login required.');
+        
+
+        const isAd = isAdminFun('','',token);
+        const c = await charity_obj.show(parseInt(req.params.id));
+        if(c == undefined)
+            return res.status(400).json('row not exist');
         //if admin or super admin the changes will occure to the brand
-        if (isAdmin) {
-            const c = await charity_obj.show(parseInt(req.params.id));
-            if(c == undefined)
-                return res.status(400).json('row not exist');
+        if ((c.needy_id == us.user.id) && permession) {
+            
             if(req.body.description)
                 c.description = req.body.description;
             if(req.body.images)
                 c.images = req.body.images;
+        }
+        else if(isAd){
             if(req.body.status)
-                c.status = req.body.status;
-            if(req.body.needy_id)
-                c.needy_id = req.body.needy_id;
-            if(req.body.volanteer_id)
-                c.volanteer_id = req.body.volanteer_id;
-            //update new data to the database and return new data
-            const resault = await charity_obj.update(c);
-            res.status(200).json(resault);
+                c.status = req.body.status;           
+            
         } else res.status(400).json('Not allowed this for you!!');
+
+
+        //update new data to the database and return new data
+        const resault = await charity_obj.update(c);
+        res.status(200).json(resault);
 
     } catch (e) {
         res.status(400).json(`${e}`);
@@ -66,16 +78,15 @@ async function create(req: Request, res: Response) {
     const token = req.headers.token as string;
     
     try {
-        //check if the user super admin or admin
-        const isAdmin = isAdminFun('','',token);
+        const permession = jwt.verify(token,secret);
+        const us = parseJwt(token);
         //if admin or super admin the changes will occure to the brand
-        if (isAdmin) {
+        if (permession) {
             const c: charity = {
                 images: req.body.images,
                 description:req.body.description,
-                needy_id: req.body.needy_id,
-                volanteer_id: req.body.volanteer_id,
-                status: req.body.status,
+                needy_id: Number(us.user.id),
+                status: 'pendding',
             };
             //create new brand to the database and return new data
             const resault = await charity_obj.create(c);
@@ -91,13 +102,12 @@ async function delete_(req: Request, res: Response) {
     const token = req.headers.token as unknown as string;
     
     try {
-
-        //check if the user super admin or admin
-        const isAdmin = isAdminFun('','',token);
+        const permession = jwt.verify(token,secret);
+        const us = parseJwt(token);
         //delete brand from the database and return deleted
         //if admin or super admin the changes will occure to the brand
-        if (isAdmin) {
-            const resault = await charity_obj.delete(Number(req.params.id));
+        if (permession) {
+            const resault = await charity_obj.delete(Number(req.params.id),us.user.id);
             res.status(200).json(resault);
         } else res.status(400).json('Not allowed for you.');
 

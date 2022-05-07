@@ -1,28 +1,23 @@
 import Client from '../database';
 import bcrypt from 'bcrypt';
-import { type } from './types';
 import config_ from '../config/config';
 //users(id,f_name,l_name,email,rate,description,images,role,password,birthday,phone,status,created_at,city,admin_id,address,type_id );
 
 
 export type user = {
   id?: number;
-  f_name?: string;
-  l_name?: string;
+  full_name?: string;
   email:string;
-  description:string,
-  images: Array<string>,
-  role:string,
-  rate:number,
+  profile_image: string,
+  role:string,// needy, volanteer
   password: string;
   birthday?:Date;
   phone?:string;
-  status:string;
+  status:string; // active, suspended, deactivated
   created_at?:Date;
   city?:string;
   address?:string;
-  admin_id?:number;
-  type_id?:type['id'];
+  id_image: string //verified image for users
 };
 
 export class User {
@@ -57,8 +52,8 @@ export class User {
             const hash = bcrypt.hashSync(u.password + config_.extra, parseInt(config_.round as string));
             const conn = await Client.connect();
             const sql =
-        'insert into users (f_name, l_name, email, password, birthday, phone, status,created_at, city,address,type_id,admin_id,rate,role,images,description) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)RETURNING*;';
-            const res = await conn.query(sql, [u.f_name, u.l_name, u.email, hash, u.birthday, u.phone, u.status, new Date(), u.city,u.address,u.type_id,u.admin_id,u.rate,u.role,u.images,u.description]);
+        'insert into users (full_name, email, password, birthday, phone, status,created_at, city,address, id_image,role,profile_image) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)RETURNING*;';
+            const res = await conn.query(sql, [u.full_name, u.email, hash, u.birthday, u.phone, u.status, new Date(), u.city,u.address,u.id_image,u.role,u.profile_image]);
             conn.release();
             return res.rows[0];
         } catch (e) {
@@ -73,8 +68,8 @@ export class User {
             const hash = bcrypt.hashSync(u.password + config_.extra, parseInt(config_.round as string));
             const conn = await Client.connect();
             const sql =
-        'update users set f_name=($1), l_name=($2),email=($3),birthday=($4),phone=($5),city=($6),address=($7), status=($9),rate=($10),password=($11),type_id=($12),admin_id=($13),role=($14),images=($15),description=($16) where id=($8)RETURNING*; ';
-            const res = await conn.query(sql, [u.f_name, u.l_name, u.email, u.birthday, u.phone, u.city,u.address, u.id,u.status,u.rate,hash,u.type_id,u.admin_id,u.role,u.images,u.description]);
+        'update users set full_name=($1), email=($2),birthday=($3),phone=($4),city=($5),address=($6), status=($8),password=($9),role=($10),id_image=($11),profile_image=($12) where id=($7)RETURNING*; ';
+            const res = await conn.query(sql, [u.full_name, u.email, u.birthday, u.phone, u.city,u.address, u.id,u.status,hash,u.role,u.id_image,u.profile_image]);
             conn.release();
             return res.rows[0];
         } catch (e) {

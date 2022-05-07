@@ -1,11 +1,10 @@
 import { Application, Response, Request } from 'express';
-//import { userSchema } from '../service/validation';
 import nodemailer from 'nodemailer';
 import { User, user } from '../models/users';
 import parseJwt from '../utils/jwtParsing';
 import jwt from 'jsonwebtoken';
-//import {middelware} from '../service/middelware';
 import bcrypt from 'bcrypt';
+import isAdminFun from '../utils/isAdmin';
 import config from '../config/config';
 
 const secret: string = config.token as unknown as string;
@@ -22,10 +21,17 @@ const transporter = nodemailer.createTransport({
 
 //return a json data for all users in database [allowed only for admins]
 async function index(req: Request, res: Response) {
-    
+    const token = req.headers.token as unknown as string;
+    let isAdmin = false;
     try {
-        const resault = await user_obj.index();
-        res.status(200).json(resault);
+        if(token){
+            isAdmin = isAdminFun('','',token);
+        }else return res.status(400).json('login required.');
+
+        if(isAdmin){
+            const resault = await user_obj.index();
+            res.status(200).json(resault);
+        }
     } catch (e) {
         res.status(400).json(`${e}`);
     }
@@ -33,13 +39,19 @@ async function index(req: Request, res: Response) {
 }
 //return json data for a sungle user [allowed only for admins or user it self]
 async function show(req: Request, res: Response) {
-        
+    const token = req.headers.token as unknown as string;
+    let isAdmin = false;
     try {
-        const resault = await user_obj.show(parseInt(req.params.id));
-        if(resault == undefined)
-            return res.status(400).json('row not exist');
-        return res.status(200).json(resault);
-            
+        if(token){
+            isAdmin = isAdminFun('','',token);
+        }else return res.status(400).json('login required.');
+
+        if(isAdmin){
+            const resault = await user_obj.show(parseInt(req.params.id));
+            if(resault == undefined)
+                return res.status(400).json('row not exist');
+            return res.status(200).json(resault);
+        }
     } catch (e) {                
         return res.status(400).json(`${e}`);
     }
@@ -67,7 +79,7 @@ async function update(req: Request, res: Response) {
             if(permession)
             {
                 const user = parseJwt(token);
-                if(user.user.status == 'admin')
+                if(user.user.admin_id)
                     user_type = 'admin'; 
                 else if(id != user.user.id){
                     return res.status(200).json('not allowed this change');
@@ -78,10 +90,8 @@ async function update(req: Request, res: Response) {
         //if user send the request
         if(user_type == 'user'){
 
-            if(req.body.f_name)
-                user_.f_name=req.body.f_name;
-            if(req.body.l_name)
-                user_.l_name=req.body.l_name;
+            if(req.body.full_name)
+                user_.full_name=req.body.full_name;
             if(req.body.email)
                 user_.email=req.body.email;
             if(req.body.password)
@@ -94,20 +104,16 @@ async function update(req: Request, res: Response) {
                 user_.city=req.body.city;
             if(req.body.address)
                 user_.address=req.body.address;
-            if(req.body.rate)
-                user_.rate=req.body.rate;
-            if(req.body.images)
-                user_.images=req.body.images;
-            if(req.body.description)
-                user_.description=req.body.description;
+           
+            if(req.body.id_image)
+                user_.id_image=req.body.id_image;
+            if(req.body.profile_image)
+                user_.profile_image=req.body.profile_image;
             
         }else { //if admin 
 
             if(req.body.status)
                 user_.status = req.body.status;
-            if(req.body.role){
-                user_.role = req.body.role;
-            }
             
         }
         
@@ -125,8 +131,7 @@ async function create(req: Request, res: Response) {
     
     //create type user with getting data to send to the database
     const u: user = {
-        f_name:req.body.f_name, 
-        l_name:req.body.l_name, 
+        full_name:req.body.full_name,  
         email:req.body.email, //required
         password:req.body.password, //required
         birthday:req.body.birthday, 
@@ -134,12 +139,9 @@ async function create(req: Request, res: Response) {
         status:'active',//the default of status is active 
         city:req.body.city,
         address:req.body.address,
-        type_id:req.body.type_id,
-        admin_id:req.body.admin_id,
+        id_image:req.body.id_image,
         role:req.body.role,
-        rate:0,//default 0
-        images:req.body.images,
-        description:req.body.description,
+        profile_image:req.body.profile_image,
     };
         //send user type to the database to create
     try {                
