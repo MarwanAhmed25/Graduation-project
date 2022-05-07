@@ -6,10 +6,12 @@ import Client from '../database';
 export type charity = {
     id?: number;
     images:Array<string>;
-    status:string,
+    status:string,//pendding, complete
     description:string,
     needy_id:number,
-    volanteer_id:number
+    type_id: number,
+    value_of_need: number,
+    remaining: number
   };
 
 
@@ -17,7 +19,7 @@ export class Charity {
     async index(): Promise<charity[]> {
         try {
             const conn = await Client.connect();
-            const sql = 'select * from charity;';
+            const sql = 'select * from charity_case;';
             const res = await conn.query(sql);
             conn.release();
             return res.rows;
@@ -29,7 +31,7 @@ export class Charity {
     async show(id: number): Promise<charity> {
         try {
             const conn = await Client.connect();
-            const sql = 'select * from charity where id =($1);';
+            const sql = 'select * from charity_case where id =($1);';
             const res = await conn.query(sql, [id]);
             conn.release();
             return res.rows[0];
@@ -41,8 +43,8 @@ export class Charity {
     async create(c: charity): Promise<charity> {
         try {
             const conn = await Client.connect();
-            const sql = 'insert into charity (description,status,images,needy_id,volanteer_id) values($1,$2,$3,$4,$5)RETURNING *;';
-            const res = await conn.query(sql, [c.description, c.status, c.images,c.needy_id,c.volanteer_id]);
+            const sql = 'insert into charity_case (description,status,images,needy_id,remaining, value_of_need,type_id) values($1,$2,$3,$4,$5,$6,$7)RETURNING *;';
+            const res = await conn.query(sql, [c.description, c.status, c.images,c.needy_id, c.remaining, c.value_of_need,c.type_id]);
             conn.release();
             return res.rows[0];
         } catch (e) {
@@ -53,8 +55,8 @@ export class Charity {
     async update(c: charity): Promise<charity> {
         try {
             const conn = await Client.connect();
-            const sql = 'update charity set description=($1),status=($2),images=($3),needy_id=($4),volanteer_id=($5) where id=($6) RETURNING *;';
-            const res = await conn.query(sql, [c.description, c.status, c.images,c.needy_id,c.volanteer_id,c.id]);
+            const sql = 'update charity_case set description=($1),status=($2),images=($3),needy_id=($4),remaining=($6), value_of_need=($7),type_id=($8) where id=($5) RETURNING *;';
+            const res = await conn.query(sql, [c.description, c.status, c.images,c.needy_id,c.id,c.remaining, c.value_of_need,c.type_id]);
             conn.release();
             return res.rows[0];
         } catch (e) {
@@ -62,11 +64,11 @@ export class Charity {
         }
     }
 
-    async delete(id: number): Promise<string> {
+    async delete(id: number, needy_id:number): Promise<string> {
         try {
             const conn = await Client.connect();
-            const sql = 'delete from charity where id =($1);';
-            await conn.query(sql, [id]);
+            const sql = 'delete from charity_case where id =($1) and needy_id=($2);';
+            await conn.query(sql, [id, needy_id]);
             conn.release();
             return 'deleted';
         } catch (e) {

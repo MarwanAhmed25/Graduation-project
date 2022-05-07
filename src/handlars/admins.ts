@@ -27,8 +27,8 @@ const transporter = nodemailer.createTransport({
 
 //return a json data for all users in database [allowed only for admins]
 async function index(req: Request, res: Response) {
-    const admin_email = req.headers.admin_email as unknown as string;
-    const admin_password = req.headers.admin_password as unknown as string;
+    const admin_email = req.headers.email as unknown as string;
+    const admin_password = req.headers.password as unknown as string;
 
     //check if request from super admin 
     if(admin_email_exist === admin_email && admin_password_exist === admin_password){
@@ -44,8 +44,8 @@ async function index(req: Request, res: Response) {
 
 //return json data for a sungle user [allowed only for admins or user it self]
 async function show(req: Request, res: Response) {
-    const admin_email = req.headers.admin_email as unknown as string;
-    const admin_password = req.headers.admin_password as unknown as string;
+    const admin_email = req.headers.email as unknown as string;
+    const admin_password = req.headers.password as unknown as string;
 
     //check if request from super admin 
     if(admin_email_exist === admin_email && admin_password_exist === admin_password){
@@ -70,23 +70,21 @@ return token for updated user [user can update all his data except (coupon_id, s
 async function update(req: Request, res: Response) {
    
 
-    const admin_email = req.headers.admin_email as unknown as string;
-    const admin_password = req.headers.admin_password as unknown as string;
+    const admin_email = req.headers.email as unknown as string;
+    const admin_password = req.headers.password as unknown as string;
     const id = parseInt(req.params.id);
 
     try {
         const user_ = await user_obj.show(id);//get user from database with id in request params
-        console.log(user_);
+        
         if(user_ == undefined)
             return res.status(400).json('row not exist');
 
         //check if request from super admin 
         if(admin_email_exist == admin_email && admin_password_exist == admin_password){
 
-            if(req.body.f_name)
-                user_.f_name=req.body.f_name;
-            if(req.body.l_name)
-                user_.l_name=req.body.l_name;
+            if(req.body.full_name)
+                user_.full_name=req.body.full_name;
             if(req.body.email)
                 user_.email=req.body.email;
             if(req.body.birthday)
@@ -113,12 +111,11 @@ async function update(req: Request, res: Response) {
 //create user by getting user data from request body
 async function create(req: Request, res: Response) {
 
-    const admin_email = req.headers.admin_email as unknown as string;
-    const admin_password = req.headers.admin_password as unknown as string;
+    const admin_email = req.headers.email as unknown as string;
+    const admin_password = req.headers.password as unknown as string;
     //create type user with getting data to send to the database
     const u: admin = {
-        f_name: req.body.f_name,
-        l_name: req.body.l_name,
+        full_name: req.body.full_name,
         email: req.body.email,
         password: req.body.password,
         birthday: req.body.birthday,
@@ -143,8 +140,8 @@ async function create(req: Request, res: Response) {
 //return deleted and delete user using id in request params [only user delete it self]
 async function delete_(req: Request, res: Response) {
 
-    const admin_email = req.headers.admin_email as unknown as string;
-    const admin_password = req.headers.admin_password as unknown as string;
+    const admin_email = req.headers.email as unknown as string;
+    const admin_password = req.headers.password as unknown as string;
 
     //check if the request from super admin?
 
@@ -164,6 +161,11 @@ async function login(req: Request, res: Response) {
     const email = req.headers.email as unknown as string;//required
     const password = req.headers.password as unknown as string;//required
     
+
+    //check if request from super admin want to login
+    if(admin_email_exist === email && admin_password_exist === password){
+        return res.status(200).json('super admin login.');
+    }
     try {
 
         //search in database by input data

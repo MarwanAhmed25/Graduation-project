@@ -1,8 +1,7 @@
 import { Application, Response, Request } from 'express';
 import { Type, type } from '../models/types';
 import isAdminFun from '../utils/isAdmin';
-//import { middelware } from '../service/middelware';
-//import { brandSchema } from '../service/validation';
+import { Charity } from '../models/charity';
 
 
 
@@ -87,15 +86,22 @@ async function create(req: Request, res: Response) {
 //delete and return deleted using id in request params
 async function delete_(req: Request, res: Response) {
     const token = req.headers.token as unknown as string;
-    
+    const charity_obj = new Charity();
+    const id = Number(req.params.id);
     try {
+        //check if there is a needy case in the type.
+        const charities = await charity_obj.index();
+        const charities_with_type = charities.filter(ch => ch.type_id == id);
 
+        if(charities_with_type.length){
+            return res.status(400).json('can not delete the type. there is a needy case in it.');
+        }
         //check if the user super admin or admin
         const isAdmin = isAdminFun('','',token);
         //delete brand from the database and return deleted
         //if admin or super admin the changes will occure to the brand
         if (isAdmin) {
-            const resault = await type_obj.delete(Number(req.params.id));
+            const resault = await type_obj.delete(id);
             res.status(200).json(resault);
         } else res.status(400).json('Not allowed for you.');
 

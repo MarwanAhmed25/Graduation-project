@@ -304,3 +304,62 @@ delete: DELETE /charity/:id
 
 
 ```
+
+
+
+
+ 
+/// marwan 7/5/2022 ////////////////////////////////////////////////////////////////////////////////////////////
+Models [ admins, users, types, charity_case, comments, links, volanteer_rate]
+Index →show all rows in model.
+Show →show one row in model.
+Create →create new row.
+Update →update row.
+Delete →delete row.
+Admins: crud operations
+	Index: only super admin can use index.
+	show: only super admin can use show.
+	create: only super admin can use create.
+	update: only super admin can use update.
+	delete: only super admin can use delete.
+users: crud operations
+	Index: only admin can use index.
+	show: only admin can use show.
+	create: any new users  can use create.
+	update: only the owner can use update and the admin can update the status only[suspend,active,deactive].
+	delete: only the owner of profile can use delete.
+charity_case: crud operations
+	Index: all can use index.
+	show: all can use show.
+	create: only needy users or organization can use create.
+	update: only the owner of the case can use update.
+	delete: only the owner of the case can use delete.
+types: crud operations [type of need mony, food, building…]
+	Index: all can use index.
+	show: all can use show.
+	create: only admin can use create.
+	update: only admin can use update.
+	delete: only admin can use delete.
+links: crud operations[ links for organization website]
+	Index: all can use index.
+	show: all can use show.
+	create: created with organization creation.
+	update: when organization updated.
+	delete: will deleted whe delete the organization.
+volanteer_rate: crud operations [rate of volanteer users]
+	Index: all can use index.
+	show: all can use show.
+	create: created with volanteer creation.
+	update: when volanteer help or pay mony for needy.
+	delete: will deleted whe delete the volanteer.
+comments: crud operations
+	Index:all can use index.
+	show: all can use show.
+	create: only login users can use create.
+	update: only owner user can use update.
+	delete: only admin or owner user can use delete.
+ 
+—----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ 
+ 
+// end of marwan /////////////////////////////////////////////////////////////////////////
