@@ -52,7 +52,7 @@ export class Type {
         try {
             const conn = await Client.connect();
             const sql =
-        'update brand set type=($1), description=($2), image=($4) where id=($3) RETURNING *; ';
+        'update types set type=($1), description=($2), image=($4) where id=($3) RETURNING *; ';
             const res = await conn.query(sql, [t.type, t.description, t.id, t.image]);
             conn.release();
             return res.rows[0];
@@ -64,7 +64,7 @@ export class Type {
     async delete(id: number): Promise<string> {
         try {
             const conn = await Client.connect();
-            const sql = 'delete from brand where id =($1);';
+            const sql = 'delete from types where id =($1);';
             await conn.query(sql, [id]);
             conn.release();
             return 'deleted';

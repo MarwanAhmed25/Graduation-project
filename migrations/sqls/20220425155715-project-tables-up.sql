@@ -6,9 +6,7 @@ create table users(id serial primary key, full_name varchar(50), email varchar(1
 create table charity_case (id serial primary key, images text[], remaining float,value_of_need float,status varchar(50), description text, needy_id bigint references users(id)on delete cascade, type_id bigint references types(id)on delete set null);
 create table links(id serial primary key, link varchar(100) unique not null, user_id bigint references users(id)on delete cascade);
 create table comment(id serial primary key, message text, created_time timestamp, user_id bigint references users(id)on delete cascade, charity_id bigint references charity(id)on delete cascade);
-create table volanteer_rate (id primary key serial, number_of_help int, total_help float, volanteer_id bigint references users(id)on delete cascade)
-
-
+create table volanteer_rate (id primary key serial, number_of_help int, total_help float, volanteer_id bigint references users(id)on delete cascade unique not null, charity_case_id bigint references charity_case(id)on delete set null)
 
 
 

@@ -4,6 +4,7 @@ import { Charity, charity } from '../models/charity';
 import isAdminFun from '../utils/isAdmin';
 import parseJwt from '../utils/jwtParsing';
 import config_ from '../config/config';
+import { Rate } from '../models/rate';
 //import { middelware } from '../service/middelware';
 //import { brandSchema } from '../service/validation';
 
@@ -44,8 +45,6 @@ async function update(req: Request, res: Response) {
         }else
             return res.status(400).json('login required.');
         
-
-        const isAd = isAdminFun('','',token);
         const c = await charity_obj.show(parseInt(req.params.id));
         if(c == undefined)
             return res.status(400).json('row not exist');
@@ -56,14 +55,20 @@ async function update(req: Request, res: Response) {
                 c.description = req.body.description;
             if(req.body.images)
                 c.images = req.body.images;
-        }
-        else if(isAd){
-            if(req.body.status)
-                c.status = req.body.status;           
-            
+            if(req.body.type_id)
+                c.type_id = req.body.type_id;
+
+            if(req.body.amount){
+                //create or update rate [amount, c.id, volanteer_id]
+                const rate_obj = new Rate();
+                rate_obj.update(Number(req.body.amount), Number(req.body.volanteer_id), Number(c.id));
+                c.remaining = c.remaining - Number(req.body.amount);
+            }
         } else res.status(400).json('Not allowed this for you!!');
 
 
+        if(c.remaining <= 0)
+            c.status = 'compelete';
         //update new data to the database and return new data
         const resault = await charity_obj.update(c);
         res.status(200).json(resault);
@@ -84,9 +89,12 @@ async function create(req: Request, res: Response) {
         if (permession) {
             const c: charity = {
                 images: req.body.images,
-                description:req.body.description,
+                description: req.body.description,
                 needy_id: Number(us.user.id),
                 status: 'pendding',
+                type_id: req.body.type_id,
+                value_of_need: req.body.value_of_need,
+                remaining: req.body.value_of_need
             };
             //create new brand to the database and return new data
             const resault = await charity_obj.create(c);

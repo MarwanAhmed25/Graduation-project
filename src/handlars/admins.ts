@@ -91,10 +91,14 @@ async function update(req: Request, res: Response) {
                 user_.birthday=req.body.birthday;
             if(req.body.phone)
                 user_.phone=req.body.phone;
+            if(req.body.salary)
+                user_.salary=req.body.salary;
             if(req.body.address)
                 user_.address=req.body.address;
             if(req.body.status)
                 user_.status = req.body.status;
+            if(req.body.password)
+                user_.password=req.body.password;
             
         }
         else return res.status(400).json('not allowed for you.');

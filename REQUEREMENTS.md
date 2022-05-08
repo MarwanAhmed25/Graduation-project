@@ -4,56 +4,56 @@
     - admin_email: "marwan@gmail.com"
     - admin_password: "marwan"
 
-## Admin model 
+## Admin model  
 
 ```
 index: GET /admins
 
     body: []
-    headers: admin_email, admin_password
+    headers: email, password * super *
 
 show: GET /admins/:id
 
     body: []
-    headers: admin_email, admin_password
+    headers: email, password * super *
 
 
 create: POST /admins
 
     body: [
-        f_name: string
-        l_name: string
+        full_name: string
         email: string   //required
         password:string //required
         birthday: string
         phone: string
         address: strin
-        salary: string
+        salary: float
     ]
-    headers: admin_email, admin_password
+    headers: email, password * super *
 
 update: PATCH /admins/:id
 
     body: [
-        f_name: string
-        l_name: string
+        full_name: string
         email: string
         birthday: string
         phone: string
+        salary:float
         address: strin
         status: string
+        password:string
     ]
-    headers: admin_email, admin_password
+    headers: email, password
 
 delete: DELETE /admins/:id
 
     body: []
-    headers: admin_email, admin_password
+    headers: email, password * super *
 
 login: GET /admins/auth/login
 
     body: []
-    headers: admin_email, admin_password
+    headers: email, password * super or any admin*
 
 
 //pending
@@ -69,30 +69,30 @@ reset_password: POST /admins/auth/reset_password
 index: GET /users
 
     body: []
-    headers: []
+    headers: [token] * admin *
 
 show: GET /users/:id
 
     body: []
-    headers: []
+    headers: [token] * admin *
 
 
 create: POST /users
 
     body: [
-        f_name: string
-        l_name: string
+        full_name: string
         email: string   //required
         password:string //required
+        profile_image:string
         birthday: string
         phone: string
         city: string
-        address: strin
-        type_id: number //FK for model types
-        admin_id:number //FK for admin accepted user
+        address: string
         role: string ['volanteer', 'needy', organization', 'user']
-        images: array<string>
-        description: string
+        id_image: string
+        
+        //if organization
+        link:string
     ]
 
     headers: []
@@ -101,21 +101,21 @@ update: PATCH /users/:id
 
     body: [
         //if user itself
-        f_name: string
-        l_name: string
-        email: string   
-        password:string 
+        full_name: string
+        email: string   //required
+        password:string //required
+        profile_image:string
         birthday: string
         phone: string
         city: string
-        address: strin
-        rate: number 
-        images: array<string>
-        description: string
+        address: string
+        id_image: string
+
+        //if organization
+        link:string
 
         //if admin
         status: string ['active', 'deactive', suspend']
-        role: string ['volanteer', 'needy', organization', 'user']
     ]
 
     headers: token //for user or admin
@@ -135,6 +135,8 @@ login: GET /auth/login
 forget_password: GET /auth/forget_password
 
 reset_password: POST /auth/reset_password
+
+logout
 
 ```
 
@@ -178,45 +180,7 @@ delete: DELETE /types/:id
     body: []
     headers: token //for admin 
 
-
-```
-
-
-
-## Links model 
-```
-index: GET /organization/:organization_id/links
-
-    body: []
-    headers: []
-
-show: GET /organization/:organization_id/links/:id
-
-    body: []
-    headers: []
-
-
-create: POST /organization/:organization_id/links
-
-    body: [
-        link: string //required
-    ]
-
-    headers: token //for organization
-
-update: PATCH /organization/:organization_id/links/:id'
-
-    body: [
-        link: string
-    ]
-
-    headers: token //for organization
-
-delete: DELETE /organization/:organization_id/links/:id
-
-    body: []
-    headers: token //for organization 
-
+if there is a needy case in the type you can not delete it. 
 
 ```
 
@@ -272,15 +236,14 @@ show: GET /charity/:id
     body: []
     headers: []
 
-
+////////////// ممكن يحصل تعديلات هنا بعد انشاء نظام الدفع ////////////////
 create: POST /charity
 
     body: [
         description: string //required
         images: array<string> //required
-        status: string ['complete', 'pendding'] //required
-        needy_id: number   //FK users //required
-        volanteer_id: number //FK users //required
+        type_id: number, //required
+        value_of_need: number, //required
     ]
 
     headers: token //for admin
@@ -290,9 +253,12 @@ update: PATCH /charity/:id
     body: [
         description: string
         images: array<string>
-        status: string ['complete', 'pendding']
-        needy_id: number   //FK users
-        volanteer_id: number //FK users
+        type_id: number,
+
+        //must be all exist or not all esixt
+        amount: number // amount of pay form volanteer
+        volanteer_id
+
     ]
 
     headers: token //for admin
@@ -361,5 +327,19 @@ comments: crud operations
  
 —----------------------------------------------------------------------------------------------------------------------------------------------------------------------
  
+  
+Website workflow:
+	Any new user can create new account as volanteer , user, organization,needy .
+	We will send a sms and email message to verify email and phone and admin will verify his id_image after that he will be a verified profile in website.
  
+Any User can create comment.
+Needy or organization can create case.
+Super admin can create,update,delete admins.
+Admins can update status of any user.
+Admins can delete any comment.
+Admins can create, update ,delete types.
+Organization and Volanteer can help or donates to needy cases.
+ 
+   
+
 // end of marwan /////////////////////////////////////////////////////////////////////////
