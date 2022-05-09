@@ -1,11 +1,8 @@
 import { Application, Response, Request } from 'express';
-//import { userSchema } from '../service/validation';
-import nodemailer from 'nodemailer';
 import { Admin, admin } from '../models/admins';
 import parseJwt from '../utils/jwtParsing';
 import config from '../config/config';
 import jwt from 'jsonwebtoken';
-//import {middelware} from '../service/middelware';
 import bcrypt from 'bcrypt';
 
 
@@ -16,13 +13,7 @@ const admin_password_exist = config.admin_password;
 const admin_email_exist = config.admin_email;
 const user_obj = new Admin();
 
-const transporter = nodemailer.createTransport({
-    service: 'gmail', 
-    auth: {
-        user: config.user_email,
-        pass: config.user_password
-    }
-});
+
   
 
 //return a json data for all users in database [allowed only for admins]
@@ -133,7 +124,7 @@ async function create(req: Request, res: Response) {
     try {    
         if(admin_email_exist === admin_email && admin_password_exist === admin_password){            
             const resault = await user_obj.create(u);
-            const token = jwt.sign({ user: resault }, secret);
+            const token = jwt.sign({ user: resault }, secret,{expiresIn: '7days'});
             res.status(200).json({user:resault,token});
         }else res.status(400).json('not allowed for you.');
     } catch (e) {
@@ -199,22 +190,10 @@ async function forget_password(req: Request, res: Response) {
             if (resault.status!='suspended') {
                 const token = jwt.sign({ user: resault }, secret);
                 const url = ''; //url will provid from front end developer
-                const mailOptions = {
-                    from: config.user_email,
-                    to: email,
-                    subject: 'Reset Possword',
-                    text:  `${url}?token=${token}`
-                };
+                
 
                 //send url with token
-                transporter.sendMail(mailOptions, function(error, info){
-                    if (error) {
-                        console.log(error);
-                    } else {
-                        console.log('Email sent: ' + info.response);
-                        res.status(200).json('check your email.');
-                    }
-                });
+               
             }else
                 res.status(400).json('user suspended');
         }

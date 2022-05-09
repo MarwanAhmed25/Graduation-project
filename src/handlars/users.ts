@@ -146,7 +146,7 @@ async function create(req: Request, res: Response) {
         //send user type to the database to create
     try {                
         const resault = await user_obj.create(u);
-        const token = jwt.sign({ user: resault }, secret);
+        const token = jwt.sign({ user: resault }, secret,{expiresIn: '7days'});
         res.status(200).json({user:resault,token});
     } catch (e) {
         res.status(400).json(`${e}`);
