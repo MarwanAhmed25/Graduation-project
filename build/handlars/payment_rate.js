@@ -1,3 +1,4 @@
+"use strict";
 /* import { Application, Response, Request } from 'express';
 import { Rate, volant } from '../models/rate';
 import isAdminFun from '../utils/isAdmin';
@@ -120,4 +121,4 @@ function mainRoutes(app: Application) {
 }
 
 export default mainRoutes;
-  */
+  */ 

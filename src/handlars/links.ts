@@ -56,7 +56,7 @@ async function update(req: Request, res: Response) {
     }
 }
 //create and return the brand with data in request body
-async function create(req: Request, res: Response) {
+/* async function create(req: Request, res: Response) {
    
     const token = req.headers.token as string;
     
@@ -76,7 +76,7 @@ async function create(req: Request, res: Response) {
     } catch (e) {
         res.status(400).json(`${e}`);
     }
-}
+} */
 //delete and return deleted using id in request params
 async function delete_(req: Request, res: Response) {
     const token = req.headers.token as unknown as string;
@@ -98,7 +98,7 @@ async function delete_(req: Request, res: Response) {
 function mainRoutes(app: Application) {
     app.get('/organization/:organization_id/links', index);
     app.get('/organization/:organization_id/links/:id', show);
-    app.post('/organization/:organization_id/links', create);
+    //app.post('/organization/:organization_id/links', create);
     app.patch('/organization/:organization_id/links/:id', update);
     app.delete('/organization/:organization_id/links/:id', delete_);
 }

@@ -20,11 +20,11 @@ class Admin {
             throw new Error(`${e}`);
         }
     }
-    async show(id) {
+    async show(admin_id) {
         try {
             const conn = await database_1.default.connect();
-            const sql = 'select * from admins where id =($1);';
-            const res = await conn.query(sql, [id]);
+            const sql = 'select * from admins where admin_id =($1);';
+            const res = await conn.query(sql, [admin_id]);
             conn.release();
             return res.rows[0];
         }
@@ -37,8 +37,8 @@ class Admin {
             //hashin password using round and extra from .env file and password from request.body
             const hash = bcrypt_1.default.hashSync(u.password + config_1.default.extra, parseInt(config_1.default.round));
             const conn = await database_1.default.connect();
-            const sql = 'insert into admins (f_name, l_name, email, password, birthday, phone, status,created_at, salary,address) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)RETURNING*;';
-            const res = await conn.query(sql, [u.f_name, u.l_name, u.email, hash, u.birthday, u.phone, u.status, new Date(), u.salary, u.address]);
+            const sql = 'insert into admins (full_name, email, password, birthday, phone, status,created_at, salary,address) values($1,$2,$3,$4,$5,$6,$7,$8,$9)RETURNING*;';
+            const res = await conn.query(sql, [u.full_name, u.email, hash, u.birthday, u.phone, u.status, new Date(), u.salary, u.address]);
             conn.release();
             return res.rows[0];
         }
@@ -48,9 +48,11 @@ class Admin {
     }
     async update(u) {
         try {
+            //hashin password using round and extra from .env file and password from request.body
+            const hash = bcrypt_1.default.hashSync(u.password + config_1.default.extra, parseInt(config_1.default.round));
             const conn = await database_1.default.connect();
-            const sql = 'update admins set f_name=($1), l_name=($2),email=($3),birthday=($4),phone=($5),salary=($6),address=($7),status=($9) where id=($8)RETURNING*; ';
-            const res = await conn.query(sql, [u.f_name, u.l_name, u.email, u.birthday, u.phone, u.salary, u.address, u.id, u.status]);
+            const sql = 'update admins set full_name=($1), email=($2),birthday=($3),phone=($4),salary=($5),address=($6),status=($8), password=($9) where admin_id=($7)RETURNING*; ';
+            const res = await conn.query(sql, [u.full_name, u.email, u.birthday, u.phone, u.salary, u.address, u.admin_id, u.status, hash]);
             conn.release();
             return res.rows[0];
         }
@@ -58,11 +60,11 @@ class Admin {
             throw new Error(`${e}`);
         }
     }
-    async delete(id) {
+    async delete(admin_id) {
         try {
             const conn = await database_1.default.connect();
-            const sql = 'delete from admins where id =($1) ;';
-            await conn.query(sql, [id]);
+            const sql = 'delete from admins where admin_id =($1) ;';
+            await conn.query(sql, [admin_id]);
             conn.release();
             return 'deleted';
         }
@@ -75,15 +77,10 @@ class Admin {
             const conn = await database_1.default.connect();
             const sql = 'select * from admins where email=($1);';
             const res = await conn.query(sql, [email]);
-            console.log(res.rows[0]);
             if (res.rows.length > 0) {
                 const i = await bcrypt_1.default.compare(password + config_1.default.extra, res.rows[0].password);
-                console.log(i);
-                if (i) {
+                if (i)
                     return res.rows[0];
-                }
-                else
-                    throw new Error('email or password wrong.');
             }
             else
                 throw new Error('email or password wrong.');

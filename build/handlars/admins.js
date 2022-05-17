@@ -3,13 +3,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-//import { userSchema } from '../service/validation';
-const nodemailer_1 = __importDefault(require("nodemailer"));
 const admins_1 = require("../models/admins");
 const jwtParsing_1 = __importDefault(require("../utils/jwtParsing"));
 const config_1 = __importDefault(require("../config/config"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-//import {middelware} from '../service/middelware';
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const secret = config_1.default.token;
 const extra = config_1.default.extra;
@@ -17,17 +14,10 @@ const round = config_1.default.round;
 const admin_password_exist = config_1.default.admin_password;
 const admin_email_exist = config_1.default.admin_email;
 const user_obj = new admins_1.Admin();
-const transporter = nodemailer_1.default.createTransport({
-    service: 'gmail',
-    auth: {
-        user: config_1.default.user_email,
-        pass: config_1.default.user_password
-    }
-});
 //return a json data for all users in database [allowed only for admins]
 async function index(req, res) {
-    const admin_email = req.headers.admin_email;
-    const admin_password = req.headers.admin_password;
+    const admin_email = req.headers.email;
+    const admin_password = req.headers.password;
     //check if request from super admin 
     if (admin_email_exist === admin_email && admin_password_exist === admin_password) {
         try {
@@ -43,8 +33,8 @@ async function index(req, res) {
 }
 //return json data for a sungle user [allowed only for admins or user it self]
 async function show(req, res) {
-    const admin_email = req.headers.admin_email;
-    const admin_password = req.headers.admin_password;
+    const admin_email = req.headers.email;
+    const admin_password = req.headers.password;
     //check if request from super admin 
     if (admin_email_exist === admin_email && admin_password_exist === admin_password) {
         try {
@@ -66,30 +56,31 @@ return token for updated user [user can update all his data except (coupon_id, s
     admins can update (coupon_id, status when not == admin)]
     */
 async function update(req, res) {
-    const admin_email = req.headers.admin_email;
-    const admin_password = req.headers.admin_password;
+    const admin_email = req.headers.email;
+    const admin_password = req.headers.password;
     const id = parseInt(req.params.id);
     try {
         const user_ = await user_obj.show(id); //get user from database with id in request params
-        console.log(user_);
         if (user_ == undefined)
             return res.status(400).json('row not exist');
         //check if request from super admin 
         if (admin_email_exist == admin_email && admin_password_exist == admin_password) {
-            if (req.body.f_name)
-                user_.f_name = req.body.f_name;
-            if (req.body.l_name)
-                user_.l_name = req.body.l_name;
+            if (req.body.full_name)
+                user_.full_name = req.body.full_name;
             if (req.body.email)
                 user_.email = req.body.email;
             if (req.body.birthday)
                 user_.birthday = req.body.birthday;
             if (req.body.phone)
                 user_.phone = req.body.phone;
+            if (req.body.salary)
+                user_.salary = req.body.salary;
             if (req.body.address)
                 user_.address = req.body.address;
             if (req.body.status)
                 user_.status = req.body.status;
+            if (req.body.password)
+                user_.password = req.body.password;
         }
         else
             return res.status(400).json('not allowed for you.');
@@ -104,12 +95,11 @@ async function update(req, res) {
 }
 //create user by getting user data from request body
 async function create(req, res) {
-    const admin_email = req.headers.admin_email;
-    const admin_password = req.headers.admin_password;
+    const admin_email = req.headers.email;
+    const admin_password = req.headers.password;
     //create type user with getting data to send to the database
     const u = {
-        f_name: req.body.f_name,
-        l_name: req.body.l_name,
+        full_name: req.body.full_name,
         email: req.body.email,
         password: req.body.password,
         birthday: req.body.birthday,
@@ -123,7 +113,7 @@ async function create(req, res) {
     try {
         if (admin_email_exist === admin_email && admin_password_exist === admin_password) {
             const resault = await user_obj.create(u);
-            const token = jsonwebtoken_1.default.sign({ user: resault }, secret);
+            const token = jsonwebtoken_1.default.sign({ user: resault }, secret, { expiresIn: '7days' });
             res.status(200).json({ user: resault, token });
         }
         else
@@ -135,8 +125,8 @@ async function create(req, res) {
 }
 //return deleted and delete user using id in request params [only user delete it self]
 async function delete_(req, res) {
-    const admin_email = req.headers.admin_email;
-    const admin_password = req.headers.admin_password;
+    const admin_email = req.headers.email;
+    const admin_password = req.headers.password;
     //check if the request from super admin?
     if (admin_email_exist === admin_email && admin_password_exist === admin_password) { //if token exist and the request params.id == token user.id
         try {
@@ -154,6 +144,10 @@ async function delete_(req, res) {
 async function login(req, res) {
     const email = req.headers.email; //required
     const password = req.headers.password; //required
+    //check if request from super admin want to login
+    if (admin_email_exist === email && admin_password_exist === password) {
+        return res.status(200).json('super admin login.');
+    }
     try {
         //search in database by input data
         const resault = await user_obj.auth(email, password);
@@ -179,22 +173,7 @@ async function forget_password(req, res) {
             if (resault.status != 'suspended') {
                 const token = jsonwebtoken_1.default.sign({ user: resault }, secret);
                 const url = ''; //url will provid from front end developer
-                const mailOptions = {
-                    from: config_1.default.user_email,
-                    to: email,
-                    subject: 'Reset Possword',
-                    text: `${url}?token=${token}`
-                };
                 //send url with token
-                transporter.sendMail(mailOptions, function (error, info) {
-                    if (error) {
-                        console.log(error);
-                    }
-                    else {
-                        console.log('Email sent: ' + info.response);
-                        res.status(200).json('check your email.');
-                    }
-                });
             }
             else
                 res.status(400).json('user suspended');
@@ -231,27 +210,6 @@ async function reset_password(req, res) {
         res.status(400).json(`${e}`);
     }
 }
-//return token for user with id from request params [only for admins]
-/* async function get_token(req: Request, res: Response) {
-    
-    const token = req.headers.token as unknown as string;
-    const admin_email = req.headers.admin_email as unknown as string;
-    const admin_password = req.headers.admin_password as unknown as string;
-
-    try {
-
-        //check if the request from super admin?
-        const isAdmin = isAdminFun(admin_email,admin_password,token);
-        if(isAdmin){//if request from admin user or super admin will return token for user with id of request id
-            const res_user = await user_obj.show(parseInt(req.params.id));
-            const res_token = jwt.sign({ user: res_user }, secret);
-            res.status(200).json(res_token);
-        }else throw new Error('not allowed.'); //else return not allowed
-        
-    } catch (e) {
-        res.status(400).json(`${e}`);
-    }
-} */
 //main routes of user model
 function mainRoutes(app) {
     app.get('/admins/auth/login', login);
@@ -261,7 +219,6 @@ function mainRoutes(app) {
     app.get('/admins', index);
     app.get('/admins/:id', show);
     app.post('/admins', create);
-    //app.get('/admins/:id/get_token', get_token);
     app.patch('/admins/:id', update);
     app.delete('/admins/:id', delete_);
 }

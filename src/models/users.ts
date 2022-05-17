@@ -100,11 +100,8 @@ export class User {
                 const i = await bcrypt.compare(password + config_.extra, res.rows[0].password);
 
                 if(i)
-                {                        
                     return res.rows[0];
-                }else throw new Error('email or password wrong.');
-                
-
+                    
             }else throw new Error('email or password wrong.');
         } catch (e) {
             throw new Error(`${e}`);
