@@ -32,7 +32,7 @@ async function show(req: Request, res: Response) {
 }
 
 //update and return the brand with id in request params and data in request body
-async function update(req: Request, res: Response) {
+/* async function update(req: Request, res: Response) {
     const token = req.headers.token as unknown as string;
     
     
@@ -54,7 +54,7 @@ async function update(req: Request, res: Response) {
     } catch (e) {
         res.status(400).json(`${e}`);
     }
-}
+} */
 //create and return the brand with data in request body
 /* async function create(req: Request, res: Response) {
    
@@ -99,7 +99,7 @@ function mainRoutes(app: Application) {
     app.get('/organization/:organization_id/links', index);
     app.get('/organization/:organization_id/links/:id', show);
     //app.post('/organization/:organization_id/links', create);
-    app.patch('/organization/:organization_id/links/:id', update);
+    //app.patch('/organization/:organization_id/links/:id', update);
     app.delete('/organization/:organization_id/links/:id', delete_);
 }
 

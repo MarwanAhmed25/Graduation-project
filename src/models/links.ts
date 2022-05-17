@@ -47,12 +47,12 @@ export class Links {
         }
     }
 
-    async update(l: links): Promise<links> {
+    async update(link: string, user_id:number): Promise<links> {
         try {
             const conn = await Client.connect();
             const sql =
-        'update links set link=($1) where id=($3) and user_id=($2) RETURNING *; ';
-            const res = await conn.query(sql, [l.link, l.user_id, l.id]);
+        'update links set link=($1) where user_id=($2) RETURNING *; ';
+            const res = await conn.query(sql, [link, user_id]);
             conn.release();
             return res.rows[0];
         } catch (e) {
