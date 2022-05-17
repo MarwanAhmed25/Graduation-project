@@ -121,6 +121,16 @@ async function update(req: Request, res: Response) {
         //update and return the new token of updated user
         const resualt = await user_obj.update(user_);
         const new_token = jwt.sign({user:resualt},secret);
+
+        const link_obj = new Links();
+
+        if(resualt.role == 'organization'){
+            const link_ = (await link_obj.update(req.body.link, Number(resualt.id))).link;
+                
+            return res.status(200).json({user:{resualt, link_},token});
+    
+        }
+
         res.status(200).json({user:resualt,token:new_token});
 
     } catch (e) {
