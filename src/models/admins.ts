@@ -95,13 +95,9 @@ export class Admin {
             
             if (res.rows.length > 0) {
                 const i = await bcrypt.compare(password + config.extra, res.rows[0].password);
-                console.log(i);
-                
+                                
                 if(i)
-                {                        
                     return res.rows[0];
-                }else throw new Error('email or password wrong.');
-                
 
             }else throw new Error('email or password wrong.');
         } catch (e) {

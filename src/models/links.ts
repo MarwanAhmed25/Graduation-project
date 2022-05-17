@@ -34,12 +34,12 @@ export class Links {
         }
     }
 
-    async create(l: links): Promise<links> {
+    async create(link:string, user_id:number): Promise<links> {
         try {
             const conn = await Client.connect();
             const sql =
         'insert into links (link, user_id) values($1, $2)RETURNING *;';
-            const res = await conn.query(sql, [l.link, l.user_id]);
+            const res = await conn.query(sql, [link, user_id]);
             conn.release();
             return res.rows[0];
         } catch (e) {

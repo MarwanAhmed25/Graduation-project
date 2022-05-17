@@ -30,11 +30,11 @@ class Links {
             throw new Error(`${e}`);
         }
     }
-    async create(l) {
+    async create(link, user_id) {
         try {
             const conn = await database_1.default.connect();
             const sql = 'insert into links (link, user_id) values($1, $2)RETURNING *;';
-            const res = await conn.query(sql, [l.link, l.user_id]);
+            const res = await conn.query(sql, [link, user_id]);
             conn.release();
             return res.rows[0];
         }

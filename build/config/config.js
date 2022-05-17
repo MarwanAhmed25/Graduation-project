@@ -13,7 +13,10 @@ const config_ = {
     extra: process.env.extra || 'marwan',
     round: process.env.round || 5,
     token: process.env.token || 'lkdfg',
-    user_email: process.env.user_email || 'marwan4@gmail.com',
-    user_password: process.env.user_password || 'marwan4',
+    user_email: process.env.user_email || 'marooa305@gmail.com',
+    user_password: process.env.user_password || 'Marooo4125881',
+    SMS_API_KEY: '4f5c46bd',
+    SMS_API_SECRET: 'tWSf7jTvFba51QN2',
+    number: '01282783116'
 };
 exports.default = config_;

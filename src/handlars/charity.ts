@@ -1,7 +1,6 @@
 import { Application, Response, Request } from 'express';
 import jwt from 'jsonwebtoken';
 import { Charity, charity } from '../models/charity';
-import isAdminFun from '../utils/isAdmin';
 import parseJwt from '../utils/jwtParsing';
 import config_ from '../config/config';
 import { Rate } from '../models/rate';

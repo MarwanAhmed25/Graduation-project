@@ -6,6 +6,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import isAdminFun from '../utils/isAdmin';
 import config from '../config/config';
+import { links, Links } from '../models/links';
 
 const secret: string = config.token as unknown as string;
 const user_obj = new User();
@@ -129,6 +130,8 @@ async function update(req: Request, res: Response) {
 //create user by getting user data from request body
 async function create(req: Request, res: Response) {
     
+    const role = req.body.role;
+    const link_obj = new Links();
     //create type user with getting data to send to the database
     const u: user = {
         full_name:req.body.full_name,  
@@ -140,13 +143,21 @@ async function create(req: Request, res: Response) {
         city:req.body.city,
         address:req.body.address,
         id_image:req.body.id_image,
-        role:req.body.role,
+        role:role,
         profile_image:req.body.profile_image,
     };
-        //send user type to the database to create
-    try {                
+    
+    //send user type to the database to create
+    try {          
         const resault = await user_obj.create(u);
-        const token = jwt.sign({ user: resault }, secret);
+        const token = jwt.sign({ user: resault }, secret,{expiresIn: '7days'});
+
+        if(role == 'organization'){
+            const link_ = (await link_obj.create(req.body.link, Number(resault.id))).link;
+            
+            return res.status(200).json({user:{resault, link_},token});
+
+        }
         res.status(200).json({user:resault,token});
     } catch (e) {
         res.status(400).json(`${e}`);

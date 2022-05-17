@@ -37,8 +37,8 @@ class User {
             //hashin password using round and extra from .env file and password from request.body
             const hash = bcrypt_1.default.hashSync(u.password + config_1.default.extra, parseInt(config_1.default.round));
             const conn = await database_1.default.connect();
-            const sql = 'insert into users (f_name, l_name, email, password, birthday, phone, status,created_at, city,address,type_id,admin_id,rate,role,images,description) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)RETURNING*;';
-            const res = await conn.query(sql, [u.f_name, u.l_name, u.email, hash, u.birthday, u.phone, u.status, new Date(), u.city, u.address, u.type_id, u.admin_id, u.rate, u.role, u.images, u.description]);
+            const sql = 'insert into users (full_name, email, password, birthday, phone, status,created_at, city,address, id_image,role,profile_image) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)RETURNING*;';
+            const res = await conn.query(sql, [u.full_name, u.email, hash, u.birthday, u.phone, u.status, new Date(), u.city, u.address, u.id_image, u.role, u.profile_image]);
             conn.release();
             return res.rows[0];
         }
@@ -51,8 +51,8 @@ class User {
             //hashin password using round and extra from .env file and password from request.body
             const hash = bcrypt_1.default.hashSync(u.password + config_1.default.extra, parseInt(config_1.default.round));
             const conn = await database_1.default.connect();
-            const sql = 'update users set f_name=($1), l_name=($2),email=($3),birthday=($4),phone=($5),city=($6),address=($7), status=($9),rate=($10),password=($11),type_id=($12),admin_id=($13),role=($14),images=($15),description=($16) where id=($8)RETURNING*; ';
-            const res = await conn.query(sql, [u.f_name, u.l_name, u.email, u.birthday, u.phone, u.city, u.address, u.id, u.status, u.rate, hash, u.type_id, u.admin_id, u.role, u.images, u.description]);
+            const sql = 'update users set full_name=($1), email=($2),birthday=($3),phone=($4),city=($5),address=($6), status=($8),password=($9),role=($10),id_image=($11),profile_image=($12) where id=($7)RETURNING*; ';
+            const res = await conn.query(sql, [u.full_name, u.email, u.birthday, u.phone, u.city, u.address, u.id, u.status, hash, u.role, u.id_image, u.profile_image]);
             conn.release();
             return res.rows[0];
         }
@@ -79,11 +79,8 @@ class User {
             const res = await conn.query(sql, [email]);
             if (res.rows.length > 0) {
                 const i = await bcrypt_1.default.compare(password + config_1.default.extra, res.rows[0].password);
-                if (i) {
+                if (i)
                     return res.rows[0];
-                }
-                else
-                    throw new Error('email or password wrong.');
             }
             else
                 throw new Error('email or password wrong.');

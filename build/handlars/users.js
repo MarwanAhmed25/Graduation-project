@@ -3,14 +3,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-//import { userSchema } from '../service/validation';
 const nodemailer_1 = __importDefault(require("nodemailer"));
 const users_1 = require("../models/users");
 const jwtParsing_1 = __importDefault(require("../utils/jwtParsing"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-//import {middelware} from '../service/middelware';
 const bcrypt_1 = __importDefault(require("bcrypt"));
+const isAdmin_1 = __importDefault(require("../utils/isAdmin"));
 const config_1 = __importDefault(require("../config/config"));
+const links_1 = require("../models/links");
 const secret = config_1.default.token;
 const user_obj = new users_1.User();
 const transporter = nodemailer_1.default.createTransport({
@@ -22,9 +22,18 @@ const transporter = nodemailer_1.default.createTransport({
 });
 //return a json data for all users in database [allowed only for admins]
 async function index(req, res) {
+    const token = req.headers.token;
+    let isAdmin = false;
     try {
-        const resault = await user_obj.index();
-        res.status(200).json(resault);
+        if (token) {
+            isAdmin = (0, isAdmin_1.default)('', '', token);
+        }
+        else
+            return res.status(400).json('login required.');
+        if (isAdmin) {
+            const resault = await user_obj.index();
+            res.status(200).json(resault);
+        }
     }
     catch (e) {
         res.status(400).json(`${e}`);
@@ -32,11 +41,20 @@ async function index(req, res) {
 }
 //return json data for a sungle user [allowed only for admins or user it self]
 async function show(req, res) {
+    const token = req.headers.token;
+    let isAdmin = false;
     try {
-        const resault = await user_obj.show(parseInt(req.params.id));
-        if (resault == undefined)
-            return res.status(400).json('row not exist');
-        return res.status(200).json(resault);
+        if (token) {
+            isAdmin = (0, isAdmin_1.default)('', '', token);
+        }
+        else
+            return res.status(400).json('login required.');
+        if (isAdmin) {
+            const resault = await user_obj.show(parseInt(req.params.id));
+            if (resault == undefined)
+                return res.status(400).json('row not exist');
+            return res.status(200).json(resault);
+        }
     }
     catch (e) {
         return res.status(400).json(`${e}`);
@@ -60,7 +78,7 @@ async function update(req, res) {
             const permession = jsonwebtoken_1.default.verify(token, secret);
             if (permession) {
                 const user = (0, jwtParsing_1.default)(token);
-                if (user.user.status == 'admin')
+                if (user.user.admin_id)
                     user_type = 'admin';
                 else if (id != user.user.id) {
                     return res.status(200).json('not allowed this change');
@@ -69,10 +87,8 @@ async function update(req, res) {
         }
         //if user send the request
         if (user_type == 'user') {
-            if (req.body.f_name)
-                user_.f_name = req.body.f_name;
-            if (req.body.l_name)
-                user_.l_name = req.body.l_name;
+            if (req.body.full_name)
+                user_.full_name = req.body.full_name;
             if (req.body.email)
                 user_.email = req.body.email;
             if (req.body.password)
@@ -85,19 +101,14 @@ async function update(req, res) {
                 user_.city = req.body.city;
             if (req.body.address)
                 user_.address = req.body.address;
-            if (req.body.rate)
-                user_.rate = req.body.rate;
-            if (req.body.images)
-                user_.images = req.body.images;
-            if (req.body.description)
-                user_.description = req.body.description;
+            if (req.body.id_image)
+                user_.id_image = req.body.id_image;
+            if (req.body.profile_image)
+                user_.profile_image = req.body.profile_image;
         }
         else { //if admin 
             if (req.body.status)
                 user_.status = req.body.status;
-            if (req.body.role) {
-                user_.role = req.body.role;
-            }
         }
         //update and return the new token of updated user
         const resualt = await user_obj.update(user_);
@@ -110,10 +121,11 @@ async function update(req, res) {
 }
 //create user by getting user data from request body
 async function create(req, res) {
+    const role = req.body.role;
+    const link_obj = new links_1.Links();
     //create type user with getting data to send to the database
     const u = {
-        f_name: req.body.f_name,
-        l_name: req.body.l_name,
+        full_name: req.body.full_name,
         email: req.body.email,
         password: req.body.password,
         birthday: req.body.birthday,
@@ -121,17 +133,18 @@ async function create(req, res) {
         status: 'active',
         city: req.body.city,
         address: req.body.address,
-        type_id: req.body.type_id,
-        admin_id: req.body.admin_id,
-        role: req.body.role,
-        rate: 0,
-        images: req.body.images,
-        description: req.body.description,
+        id_image: req.body.id_image,
+        role: role,
+        profile_image: req.body.profile_image,
     };
     //send user type to the database to create
     try {
         const resault = await user_obj.create(u);
-        const token = jsonwebtoken_1.default.sign({ user: resault }, secret);
+        const token = jsonwebtoken_1.default.sign({ user: resault }, secret, { expiresIn: '7days' });
+        if (role == 'organization') {
+            const link_ = (await link_obj.create(req.body.link, Number(resault.id))).link;
+            return res.status(200).json({ user: { resault, link_ }, token });
+        }
         res.status(200).json({ user: resault, token });
     }
     catch (e) {
