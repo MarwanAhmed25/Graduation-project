@@ -113,6 +113,11 @@ async function update(req, res) {
         //update and return the new token of updated user
         const resualt = await user_obj.update(user_);
         const new_token = jsonwebtoken_1.default.sign({ user: resualt }, secret);
+        const link_obj = new links_1.Links();
+        if (resualt.role == 'organization') {
+            const link_ = (await link_obj.update(req.body.link, Number(resualt.id))).link;
+            return res.status(200).json({ user: { resualt, link_ }, token });
+        }
         res.status(200).json({ user: resualt, token: new_token });
     }
     catch (e) {
@@ -259,33 +264,8 @@ async function reset_password(req, res) {
         res.status(400).json(`${e}`);
     }
 }
-//return token for user with id from request params [only for admins]
-/* async function get_token(req: Request, res: Response) {
-    
-    const token = req.headers.token as unknown as string;
-    const admin_email = req.headers.admin_email as unknown as string;
-    const admin_password = req.headers.admin_password as unknown as string;
-
-    try {
-
-        //check if the request from super admin?
-        const isAdmin = isAdminFun(admin_email,admin_password,token);
-        if(isAdmin){//if request from admin user or super admin will return token for user with id of request id
-            const res_user = await user_obj.show(parseInt(req.params.id));
-            const res_token = jwt.sign({ user: res_user }, secret);
-            res.status(200).json(res_token);
-        }else throw new Error('not allowed.'); //else return not allowed
-        
-    } catch (e) {
-        res.status(400).json(`${e}`);
-    }
-} */
 //main routes of user model
 function mainRoutes(app) {
-    app.get('/auth/login', login);
-    app.get('/auth/forget_password', forget_password);
-    app.post('/auth/reset_password', reset_password);
-    //
     app.get('/users', index);
     app.get('/users/:id', show);
     app.post('/users', create);

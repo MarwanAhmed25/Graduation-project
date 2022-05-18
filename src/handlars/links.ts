@@ -1,5 +1,5 @@
 import { Application, Response, Request } from 'express';
-import { Links, links } from '../models/links';
+import { Links } from '../models/links';
 //import { middelware } from '../service/middelware';
 //import { brandSchema } from '../service/validation';
 import parseJwt from '../utils/jwtParsing';
