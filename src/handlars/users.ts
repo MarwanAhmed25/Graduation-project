@@ -6,7 +6,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import isAdminFun from '../utils/isAdmin';
 import config from '../config/config';
-import { links, Links } from '../models/links';
+import { Links } from '../models/links';
 
 const secret: string = config.token as unknown as string;
 const user_obj = new User();
@@ -281,33 +281,10 @@ async function reset_password(req: Request, res: Response) {
         res.status(400).json(`${e}`);
     }
 }
-//return token for user with id from request params [only for admins]
-/* async function get_token(req: Request, res: Response) {
-    
-    const token = req.headers.token as unknown as string;
-    const admin_email = req.headers.admin_email as unknown as string;
-    const admin_password = req.headers.admin_password as unknown as string;
 
-    try {
-
-        //check if the request from super admin?
-        const isAdmin = isAdminFun(admin_email,admin_password,token);
-        if(isAdmin){//if request from admin user or super admin will return token for user with id of request id
-            const res_user = await user_obj.show(parseInt(req.params.id));
-            const res_token = jwt.sign({ user: res_user }, secret);
-            res.status(200).json(res_token);
-        }else throw new Error('not allowed.'); //else return not allowed        
-        
-    } catch (e) {
-        res.status(400).json(`${e}`);
-    }
-} */
 //main routes of user model
 function mainRoutes(app: Application) {
-    app.get('/auth/login', login);
-    app.get('/auth/forget_password',forget_password);
-    app.post('/auth/reset_password', reset_password);
-    //
+    
     app.get('/users', index);
     app.get('/users/:id', show);
     app.post('/users', create);

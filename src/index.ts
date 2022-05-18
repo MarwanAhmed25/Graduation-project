@@ -3,8 +3,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
-import swaggerUi from 'swagger-ui-express';
-import swaggerJsdoc from 'swagger-jsdoc';
+import auth from './handlars/auth';
 import usersRoutes from './handlars/users';
 import typesRoutes from './handlars/types';
 import linksRoutes from './handlars/links';
@@ -36,5 +35,6 @@ linksRoutes(app);
 commentsRoutes(app);
 charityRoutes(app);
 adminsRoutes(app);
+auth(app);
 //export the app to use when importing the file
 export default app;

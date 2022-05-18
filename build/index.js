@@ -8,6 +8,7 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const cors_1 = __importDefault(require("cors"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const body_parser_1 = __importDefault(require("body-parser"));
+const auth_1 = __importDefault(require("./handlars/auth"));
 const users_1 = __importDefault(require("./handlars/users"));
 const types_1 = __importDefault(require("./handlars/types"));
 const links_1 = __importDefault(require("./handlars/links"));
@@ -35,5 +36,6 @@ app.get('/', (req, res) => {
 (0, comments_1.default)(app);
 (0, charity_1.default)(app);
 (0, admins_1.default)(app);
+(0, auth_1.default)(app);
 //export the app to use when importing the file
 exports.default = app;

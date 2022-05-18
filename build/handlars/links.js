@@ -31,28 +31,29 @@ async function show(req, res) {
     }
 }
 //update and return the brand with id in request params and data in request body
-async function update(req, res) {
-    const token = req.headers.token;
+/* async function update(req: Request, res: Response) {
+    const token = req.headers.token as unknown as string;
+    
+    
     try {
-        const user = (0, jwtParsing_1.default)(token).user;
+        const user = parseJwt(token).user;
         //if user it self the changes will occure
-        if (parseInt(req.params.organization_id) == user.id) {
+        if (parseInt(req.params.organization_id)== user.id) {
             const l = await links_obj.show(parseInt(req.params.id));
-            if (l == undefined)
+            if(l == undefined)
                 return res.status(400).json('row not exist');
-            if (req.body.name)
+            if(req.body.name)
                 l.link = req.body.link;
+            
             //update new data to the database and return new data
             const resault = await links_obj.update(l);
             res.status(200).json(resault);
-        }
-        else
-            res.status(400).json('Not allowed this for you!!');
-    }
-    catch (e) {
+        } else res.status(400).json('Not allowed this for you!!');
+
+    } catch (e) {
         res.status(400).json(`${e}`);
     }
-}
+} */
 //create and return the brand with data in request body
 /* async function create(req: Request, res: Response) {
    
@@ -96,7 +97,7 @@ function mainRoutes(app) {
     app.get('/organization/:organization_id/links', index);
     app.get('/organization/:organization_id/links/:id', show);
     //app.post('/organization/:organization_id/links', create);
-    app.patch('/organization/:organization_id/links/:id', update);
+    //app.patch('/organization/:organization_id/links/:id', update);
     app.delete('/organization/:organization_id/links/:id', delete_);
 }
 exports.default = mainRoutes;
