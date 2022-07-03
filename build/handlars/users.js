@@ -11,6 +11,7 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 const isAdmin_1 = __importDefault(require("../utils/isAdmin"));
 const config_1 = __importDefault(require("../config/config"));
 const links_1 = require("../models/links");
+const jwt_decode_1 = __importDefault(require("jwt-decode"));
 const secret = config_1.default.token;
 const user_obj = new users_1.User();
 const transporter = nodemailer_1.default.createTransport({
@@ -43,18 +44,19 @@ async function index(req, res) {
 async function show(req, res) {
     const token = req.headers.token;
     let isAdmin = false;
+    const x = (0, jwt_decode_1.default)(token);
+    const user = JSON.parse(JSON.stringify(x)).user;
+    console.log(user.id);
     try {
-        if (token) {
-            isAdmin = (0, isAdmin_1.default)('', '', token);
+        const link_obj = new links_1.Links();
+        const resault = await user_obj.show(parseInt(req.params.id));
+        if (resault == undefined)
+            return res.status(400).json('row not exist');
+        if (resault.role == 'organization') {
+            const li = await link_obj.show(parseInt(req.params.id));
+            return res.status(200).json({ resault, link: li });
         }
-        else
-            return res.status(400).json('login required.');
-        if (isAdmin) {
-            const resault = await user_obj.show(parseInt(req.params.id));
-            if (resault == undefined)
-                return res.status(400).json('row not exist');
-            return res.status(200).json(resault);
-        }
+        return res.status(200).json(resault);
     }
     catch (e) {
         return res.status(400).json(`${e}`);
@@ -112,10 +114,11 @@ async function update(req, res) {
         }
         //update and return the new token of updated user
         const resualt = await user_obj.update(user_);
+        console.log(resualt);
         const new_token = jsonwebtoken_1.default.sign({ user: resualt }, secret);
         const link_obj = new links_1.Links();
         if (resualt.role == 'organization') {
-            const link_ = (await link_obj.update(req.body.link, Number(resualt.id))).link;
+            const link_ = await link_obj.update(req.body.link, Number(resualt.id));
             return res.status(200).json({ user: { resualt, link_ }, token });
         }
         res.status(200).json({ user: resualt, token: new_token });
@@ -182,24 +185,6 @@ async function delete_(req, res) {
     }
     else
         res.status(400).json('token required or id params wrong.'); //else return error
-}
-//return token for user and login the user using email and password from request body
-async function login(req, res) {
-    const email = req.headers.email; //required
-    const password = req.headers.password; //required
-    try {
-        //search in database by input data
-        const resault = await user_obj.auth(email, password);
-        if (resault) { //if their is user in database with input data will return token for that uer
-            const user_token = jsonwebtoken_1.default.sign({ user: resault }, secret);
-            res.status(200).json({ user: resault, token: user_token });
-        }
-        else
-            res.status(400).json('user not exist.'); //else return failed
-    }
-    catch (e) {
-        res.status(400).json(`${e}`);
-    }
 }
 //send mail to the user which sending in request body
 async function forget_password(req, res) {

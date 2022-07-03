@@ -38,6 +38,7 @@ export class User {
             const conn = await Client.connect();
             const sql = 'select * from users where id =($1);';
             const res = await conn.query(sql, [id]);
+            
             conn.release();
             return res.rows[0];
         } catch (e) {

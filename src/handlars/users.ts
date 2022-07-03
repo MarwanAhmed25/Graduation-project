@@ -8,6 +8,10 @@ import isAdminFun from '../utils/isAdmin';
 import config from '../config/config';
 import { Links } from '../models/links';
 
+
+import jwtDecode from 'jwt-decode';
+
+
 const secret: string = config.token as unknown as string;
 const user_obj = new User();
 
@@ -24,6 +28,7 @@ const transporter = nodemailer.createTransport({
 async function index(req: Request, res: Response) {
     const token = req.headers.token as unknown as string;
     let isAdmin = false;
+    
     try {
         if(token){
             isAdmin = isAdminFun('','',token);
@@ -42,17 +47,26 @@ async function index(req: Request, res: Response) {
 async function show(req: Request, res: Response) {
     const token = req.headers.token as unknown as string;
     let isAdmin = false;
-    try {
-        if(token){
-            isAdmin = isAdminFun('','',token);
-        }else return res.status(400).json('login required.');
 
-        if(isAdmin){
-            const resault = await user_obj.show(parseInt(req.params.id));
-            if(resault == undefined)
-                return res.status(400).json('row not exist');
-            return res.status(200).json(resault);
+
+    const x = jwtDecode(token);
+    const user = JSON.parse(JSON.stringify(x)).user;
+    console.log(user.id);
+
+    try {
+        
+        const link_obj = new Links();
+        const resault = await user_obj.show(parseInt(req.params.id));
+        
+        if(resault == undefined)
+            return res.status(400).json('row not exist');
+
+        if(resault.role == 'organization'){
+            const li = await link_obj.show(parseInt(req.params.id));
+            return res.status(200).json({resault, link:li});
         }
+        return res.status(200).json(resault);
+    
     } catch (e) {                
         return res.status(400).json(`${e}`);
     }
@@ -120,12 +134,14 @@ async function update(req: Request, res: Response) {
         
         //update and return the new token of updated user
         const resualt = await user_obj.update(user_);
+        console.log(resualt);
+        
         const new_token = jwt.sign({user:resualt},secret);
 
         const link_obj = new Links();
 
         if(resualt.role == 'organization'){
-            const link_ = (await link_obj.update(req.body.link, Number(resualt.id))).link;
+            const link_ = await link_obj.update(req.body.link, Number(resualt.id));
                 
             return res.status(200).json({user:{resualt, link_},token});
     
@@ -200,29 +216,7 @@ async function delete_(req: Request, res: Response) {
     } else 
         res.status(400).json('token required or id params wrong.');//else return error
 }
-//return token for user and login the user using email and password from request body
-async function login(req: Request, res: Response) {
-    
-    const email = req.headers.email as unknown as string;//required
-    const password = req.headers.password as unknown as string;//required
-    
-    try {
 
-        //search in database by input data
-        const resault = await user_obj.auth(email,password);
-        
-        if(resault){//if their is user in database with input data will return token for that uer
-
-            const user_token = jwt.sign({user:resault},secret);
-            res.status(200).json({user:resault,token:user_token});
-            
-        }
-        else
-            res.status(400).json('user not exist.');//else return failed
-    } catch (e) {
-        res.status(400).json(`${e}`);
-    }
-}
 //send mail to the user which sending in request body
 async function forget_password(req: Request, res: Response) {
     try {

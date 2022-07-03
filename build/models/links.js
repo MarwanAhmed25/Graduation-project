@@ -45,7 +45,7 @@ class Links {
     async update(link, user_id) {
         try {
             const conn = await database_1.default.connect();
-            const sql = 'update links set link=($1) where user_id=($2) RETURNING *; ';
+            const sql = 'update links set link=($1) where user_id=($2) RETURNING link; ';
             const res = await conn.query(sql, [link, user_id]);
             conn.release();
             return res.rows[0];

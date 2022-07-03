@@ -51,7 +51,7 @@ export class Links {
         try {
             const conn = await Client.connect();
             const sql =
-        'update links set link=($1) where user_id=($2) RETURNING *; ';
+        'update links set link=($1) where user_id=($2) RETURNING link; ';
             const res = await conn.query(sql, [link, user_id]);
             conn.release();
             return res.rows[0];
