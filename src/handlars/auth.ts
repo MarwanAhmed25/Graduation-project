@@ -4,6 +4,7 @@ import { User } from '../models/users';
 import parseJwt from '../utils/jwtParsing';
 import config from '../config/config';
 import jwt from 'jsonwebtoken';
+import { Links } from '../models/links';
 
 
 const secret: string = config.token as unknown as string;
@@ -33,8 +34,15 @@ async function login(req: Request, res: Response) {
         const resault = await user_obj.auth(email,password);
         
         if(resault){//if their is user in database with input data will return token for that uer
-
+            
             const user_token = jwt.sign({user:resault},secret);
+
+            if(resault.role == 'organization'){
+                const link_obj = new Links();
+                const li = await link_obj.show(resault.id as unknown as number);
+                return res.status(200).json({resault,token:user_token, link:li, role:'user'});
+            }
+
             return res.status(200).json({user:resault,token:user_token, role:'user'});
             
         }

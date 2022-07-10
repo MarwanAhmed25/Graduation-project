@@ -7,6 +7,7 @@ const admins_1 = require("../models/admins");
 const users_1 = require("../models/users");
 const config_1 = __importDefault(require("../config/config"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const links_1 = require("../models/links");
 const secret = config_1.default.token;
 const admin_password_exist = config_1.default.admin_password;
 const admin_email_exist = config_1.default.admin_email;
@@ -26,6 +27,11 @@ async function login(req, res) {
         const resault = await user_obj.auth(email, password);
         if (resault) { //if their is user in database with input data will return token for that uer
             const user_token = jsonwebtoken_1.default.sign({ user: resault }, secret);
+            if (resault.role == 'organization') {
+                const link_obj = new links_1.Links();
+                const li = await link_obj.show(resault.id);
+                return res.status(200).json({ resault, token: user_token, link: li, role: 'user' });
+            }
             return res.status(200).json({ user: resault, token: user_token, role: 'user' });
         }
         else {

@@ -82,8 +82,6 @@ class User {
                 if (i)
                     return res.rows[0];
             }
-            else
-                throw new Error('email or password wrong.');
         }
         catch (e) {
             throw new Error(`${e}`);

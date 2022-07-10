@@ -8,7 +8,6 @@ const users_1 = require("../models/users");
 const jwtParsing_1 = __importDefault(require("../utils/jwtParsing"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
-const isAdmin_1 = __importDefault(require("../utils/isAdmin"));
 const config_1 = __importDefault(require("../config/config"));
 const links_1 = require("../models/links");
 const jwt_decode_1 = __importDefault(require("jwt-decode"));
@@ -26,15 +25,16 @@ async function index(req, res) {
     const token = req.headers.token;
     let isAdmin = false;
     try {
-        if (token) {
-            isAdmin = (0, isAdmin_1.default)('', '', token);
-        }
-        else
-            return res.status(400).json('login required.');
-        if (isAdmin) {
+        /* if(token){
+            isAdmin = isAdminFun('','',token);
+        }else return res.status(400).json('login required.');
+
+        if(isAdmin){
             const resault = await user_obj.index();
             res.status(200).json(resault);
-        }
+        } */
+        const resault = await user_obj.index();
+        res.status(200).json(resault);
     }
     catch (e) {
         res.status(400).json(`${e}`);
