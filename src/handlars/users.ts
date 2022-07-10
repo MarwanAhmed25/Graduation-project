@@ -284,6 +284,7 @@ function mainRoutes(app: Application) {
     app.post('/users', create);
     // app.get('/users/:id/get_token', get_token);
     app.patch('/users/:id', update);
+    app.post('/forget_password', forget_password);
     app.delete('/users/:id', delete_);
 }
 
