@@ -223,7 +223,8 @@ async function forget_password(req: Request, res: Response) {
         const email = req.body.email as unknown as string;
         //check for the user with sending email
         const resault = await user_obj.forget_password(email);
-                
+        console.log(email, resault);
+        
         //if user exist
         if(resault){
             if (resault.status!='suspended') {
@@ -285,6 +286,7 @@ function mainRoutes(app: Application) {
     // app.get('/users/:id/get_token', get_token);
     app.patch('/users/:id', update);
     app.post('/forget_password', forget_password);
+    app.post('/reset_password', reset_password);
     app.delete('/users/:id', delete_);
 }
 
