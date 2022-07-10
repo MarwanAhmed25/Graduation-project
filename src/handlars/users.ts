@@ -220,7 +220,7 @@ async function delete_(req: Request, res: Response) {
 //send mail to the user which sending in request body
 async function forget_password(req: Request, res: Response) {
     try {
-        const email = req.headers.email as unknown as string;
+        const email = req.body.email as unknown as string;
         //check for the user with sending email
         const resault = await user_obj.forget_password(email);
                 
