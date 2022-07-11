@@ -21,7 +21,8 @@ function isAdmin(email, password, token) {
             const permession = jsonwebtoken_1.default.verify(token, secret);
             if (permession) {
                 const user = (0, jwtParsing_1.default)(token);
-                if (user.user.status == 'admin')
+                //console.log(user.user);
+                if (user.user.admin_id)
                     return true;
             }
         }

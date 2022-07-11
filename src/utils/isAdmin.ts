@@ -20,7 +20,9 @@ function isAdmin(email:string, password:string, token:string):boolean{
 
             if(permession ){
                 const user = parseJwt(token);
-                if(user.user.status =='admin')
+                //console.log(user.user);
+                
+                if(user.user.admin_id)
                     return true;
             }
         } catch (error) {

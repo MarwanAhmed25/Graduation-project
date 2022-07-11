@@ -43,8 +43,8 @@ async function update(req: Request, res: Response) {
             const t = await type_obj.show(parseInt(req.params.id));
             if(t == undefined)
                 return res.status(400).json('row not exist');
-            if(req.body.name)
-                t.type = req.body.name;
+            if(req.body.type)
+                t.type = req.body.type;
             
             if(req.body.description)
                 t.description = req.body.description;
@@ -67,6 +67,8 @@ async function create(req: Request, res: Response) {
     try {
         //check if the user super admin or admin
         const isAdmin = isAdminFun('','',token);
+        //console.log(isAdmin);
+        
         //if admin or super admin the changes will occure to the brand
         if (isAdmin) {
             const t: type = {

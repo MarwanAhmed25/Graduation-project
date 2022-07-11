@@ -258,6 +258,7 @@ function mainRoutes(app) {
     // app.get('/users/:id/get_token', get_token);
     app.patch('/users/:id', update);
     app.post('/forget_password', forget_password);
+    app.post('/reset_password', reset_password);
     app.delete('/users/:id', delete_);
 }
 exports.default = mainRoutes;
