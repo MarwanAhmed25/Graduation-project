@@ -143,7 +143,7 @@ async function update(req: Request, res: Response) {
         if(resualt.role == 'organization'){
             const link_ = await link_obj.update(req.body.link, Number(resualt.id));
                 
-            return res.status(200).json({user:{resualt, link_},token});
+            return res.status(200).json({user:{user:resualt, link:link_},token});
     
         }
 
@@ -176,12 +176,12 @@ async function create(req: Request, res: Response) {
     //send user type to the database to create
     try {          
         const user = await user_obj.create(u);
-        const token = jwt.sign({ user: user }, secret,{expiresIn: '7days'});
+        const token = jwt.sign({ user: user }, secret);
 
         if(role == 'organization'){
             const link_ = (await link_obj.create(req.body.link, Number(user.id))).link;
             
-            return res.status(200).json({user:{user, link_},token});
+            return res.status(200).json({user:{user, link:link_},token});
 
         }
         res.status(200).json({user:user,token});
