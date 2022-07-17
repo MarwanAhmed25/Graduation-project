@@ -10,8 +10,8 @@ const type_obj = new types_1.Type();
 //return all brands in database
 async function index(req, res) {
     try {
-        const resault = await type_obj.index();
-        res.status(200).json(resault);
+        const result = await type_obj.index();
+        res.status(200).json(result);
     }
     catch (e) {
         res.status(400).json(`${e}`);
@@ -20,10 +20,10 @@ async function index(req, res) {
 //return only one brand from databse using id in request params
 async function show(req, res) {
     try {
-        const resault = await type_obj.show(req.params.id);
-        if (resault == undefined)
+        const result = await type_obj.show(req.params.id);
+        if (result == undefined)
             return res.status(400).json('row not exist');
-        res.status(200).json(resault);
+        res.status(200).json(result);
     }
     catch (e) {
         res.status(400).json(`${e}`);
@@ -47,8 +47,8 @@ async function update(req, res) {
             if (req.body.image)
                 t.image = req.body.image;
             //update new data to the database and return new data
-            const resault = await type_obj.update(t);
-            res.status(200).json(resault);
+            const result = await type_obj.update(t);
+            res.status(200).json(result);
         }
         else
             res.status(400).json('Not allowed this for you!!');
@@ -72,8 +72,8 @@ async function create(req, res) {
                 image: req.body.image
             };
             //create new brand to the database and return new data
-            const resault = await type_obj.create(t);
-            res.status(200).json(resault);
+            const result = await type_obj.create(t);
+            res.status(200).json(result);
         }
         else
             res.status(400).json('Not allowed this for you!!');
@@ -99,8 +99,8 @@ async function delete_(req, res) {
         //delete brand from the database and return deleted
         //if admin or super admin the changes will occure to the brand
         if (isAdmin) {
-            const resault = await type_obj.delete(id);
-            res.status(200).json(resault);
+            const result = await type_obj.delete(id);
+            res.status(200).json(result);
         }
         else
             res.status(400).json('Not allowed for you.');

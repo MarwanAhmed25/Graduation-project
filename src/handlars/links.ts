@@ -13,8 +13,8 @@ const links_obj = new Links();
 async function index(req: Request, res: Response) {
     
     try {
-        const resault = await links_obj.index();
-        res.status(200).json(resault);
+        const result = await links_obj.index();
+        res.status(200).json(result);
     } catch (e) {
         res.status(400).json(`${e}`);
     }
@@ -22,10 +22,10 @@ async function index(req: Request, res: Response) {
 //return only one brand from databse using id in request params
 async function show(req: Request, res: Response) {
     try {
-        const resault = await links_obj.show(req.params.id as unknown as number);
-        if(resault == undefined)
+        const result = await links_obj.show(req.params.id as unknown as number);
+        if(result == undefined)
             return res.status(400).json('row not exist');
-        res.status(200).json(resault);
+        res.status(200).json(result);
     } catch (e) {
         res.status(400).json(`${e}`);
     }
@@ -47,8 +47,8 @@ async function show(req: Request, res: Response) {
                 l.link = req.body.link;
             
             //update new data to the database and return new data
-            const resault = await links_obj.update(l);
-            res.status(200).json(resault);
+            const result = await links_obj.update(l);
+            res.status(200).json(result);
         } else res.status(400).json('Not allowed this for you!!');
 
     } catch (e) {
@@ -69,8 +69,8 @@ async function show(req: Request, res: Response) {
                 link:req.body.link
             };
             //create new brand to the database and return new data
-            const resault = await links_obj.create(l);
-            res.status(200).json(resault);
+            const result = await links_obj.create(l);
+            res.status(200).json(result);
         } else res.status(400).json('Not allowed this for you!!');
 
     } catch (e) {
@@ -85,8 +85,8 @@ async function delete_(req: Request, res: Response) {
         const user = parseJwt(token).user;
         //if user it self the changes will occure
         if (parseInt(req.params.organization_id)== user.id) {
-            const resault = await links_obj.delete(Number(req.params.id));
-            res.status(200).json(resault);
+            const result = await links_obj.delete(Number(req.params.id));
+            res.status(200).json(result);
         } else res.status(400).json('Not allowed for you.');
 
     } catch (e) {

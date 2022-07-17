@@ -12,8 +12,8 @@ const comment_obj = new Comment();
 //return all comments for one product with id in request params from database
 async function index(req: Request, res: Response) {
     try {
-        const resault = await comment_obj.index(Number(req.params.charity_id));
-        res.status(200).json(resault);
+        const result = await comment_obj.index(Number(req.params.charity_id));
+        res.status(200).json(result);
     } catch (e) {
         console.log(e);
 
@@ -23,10 +23,10 @@ async function index(req: Request, res: Response) {
 //return only one comment from databse using id and product_id in request params
 async function show(req: Request, res: Response) {
     try {
-        const resault = await comment_obj.show(Number(req.params.charity_id),Number(req.params.id));
-        if(resault == undefined)
+        const result = await comment_obj.show(Number(req.params.charity_id),Number(req.params.id));
+        if(result == undefined)
             return res.status(400).json('row not exist');
-        res.status(200).json(resault);
+        res.status(200).json(result);
     } catch (e) {
         console.log(e);
 
@@ -58,8 +58,8 @@ async function update(req: Request, res: Response) {
                 c.message = req.body.message;
 
             //update and return new comment data
-            const resault = await comment_obj.update(c);
-            res.status(200).json(resault);
+            const result = await comment_obj.update(c);
+            res.status(200).json(result);
         } else res.status(400).json('user not exist.');
     } catch (e) {
         console.log(e);
@@ -96,8 +96,8 @@ async function create(req: Request, res: Response) {
                 charity_id:Number(req.params.charity_id),
             };
             //update and return new comment data
-            const resault = await comment_obj.create(c);
-            res.status(200).json(resault);
+            const result = await comment_obj.create(c);
+            res.status(200).json(result);
         } else res.status(400).json('user not exist.');
     } catch (e) {
         console.log(e);
@@ -125,8 +125,8 @@ async function delete_(req: Request, res: Response) {
         const user = parseJwt(token).user;
         //if token is exist will delete the comment with product_id and id in params
         if (isA || isTrue) {
-            const resault = await comment_obj.delete(Number(user.id),Number(req.params.id));
-            return res.status(200).json(resault);
+            const result = await comment_obj.delete(Number(user.id),Number(req.params.id));
+            return res.status(200).json(result);
         } else return res.status(400).json('user not exist.');
     } catch (e) {
         console.log(e);

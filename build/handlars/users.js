@@ -7,7 +7,6 @@ const nodemailer_1 = __importDefault(require("nodemailer"));
 const users_1 = require("../models/users");
 const jwtParsing_1 = __importDefault(require("../utils/jwtParsing"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const bcrypt_1 = __importDefault(require("bcrypt"));
 const isAdmin_1 = __importDefault(require("../utils/isAdmin"));
 const config_1 = __importDefault(require("../config/config"));
 const links_1 = require("../models/links");
@@ -32,8 +31,8 @@ async function index(req, res) {
         else
             return res.status(400).json('login required.');
         if (isAdmin) {
-            const resault = await user_obj.index();
-            res.status(200).json(resault);
+            const user = await user_obj.index();
+            res.status(200).json(user);
         }
     }
     catch (e) {
@@ -49,14 +48,14 @@ async function show(req, res) {
     console.log(user.id);
     try {
         const link_obj = new links_1.Links();
-        const resault = await user_obj.show(parseInt(req.params.id));
-        if (resault == undefined)
+        const user = await user_obj.show(parseInt(req.params.id));
+        if (user == undefined)
             return res.status(400).json('row not exist');
-        if (resault.role == 'organization') {
+        if (user.role == 'organization') {
             const li = await link_obj.show(parseInt(req.params.id));
-            return res.status(200).json({ resault, link: li });
+            return res.status(200).json({ user, link: li });
         }
-        return res.status(200).json(resault);
+        return res.status(200).json(user);
     }
     catch (e) {
         return res.status(400).json(`${e}`);
@@ -114,7 +113,7 @@ async function update(req, res) {
         }
         //update and return the new token of updated user
         const resualt = await user_obj.update(user_);
-        console.log(resualt);
+        //console.log(resualt);
         const new_token = jsonwebtoken_1.default.sign({ user: resualt }, secret);
         const link_obj = new links_1.Links();
         if (resualt.role == 'organization') {
@@ -147,13 +146,13 @@ async function create(req, res) {
     };
     //send user type to the database to create
     try {
-        const resault = await user_obj.create(u);
-        const token = jsonwebtoken_1.default.sign({ user: resault }, secret, { expiresIn: '7days' });
+        const user = await user_obj.create(u);
+        const token = jsonwebtoken_1.default.sign({ user: user }, secret, { expiresIn: '7days' });
         if (role == 'organization') {
-            const link_ = (await link_obj.create(req.body.link, Number(resault.id))).link;
-            return res.status(200).json({ user: { resault, link_ }, token });
+            const link_ = (await link_obj.create(req.body.link, Number(user.id))).link;
+            return res.status(200).json({ user: { user, link_ }, token });
         }
-        res.status(200).json({ user: resault, token });
+        res.status(200).json({ user: user, token });
     }
     catch (e) {
         res.status(400).json(`${e}`);
@@ -176,8 +175,8 @@ async function delete_(req, res) {
     //check if the request from super admin?
     if (permession && (id == parseInt((0, jwtParsing_1.default)(token).user.id))) { //if token exist and the request params.id == token user.id
         try {
-            const resault = await user_obj.delete(id); //delete user from database by id
-            res.status(200).json(resault); //return deleted
+            const user = await user_obj.delete(id); //delete user from database by id
+            res.status(200).json(user); //return deleted
         }
         catch (e) {
             res.status(400).json(`${e}`);
@@ -191,12 +190,12 @@ async function forget_password(req, res) {
     try {
         const email = req.body.email;
         //check for the user with sending email
-        const resault = await user_obj.forget_password(email);
-        console.log(email, resault);
+        const user = await user_obj.forget_password(email);
+        console.log(email, user);
         //if user exist
-        if (resault) {
-            if (resault.status != 'suspended') {
-                const token = jsonwebtoken_1.default.sign({ user: resault }, secret);
+        if (user) {
+            if (user.status != 'suspended') {
+                const token = jsonwebtoken_1.default.sign({ user: user }, secret);
                 const url = ''; //url will provid from front end developer
                 const mailOptions = {
                     from: config_1.default.user_email,
@@ -225,31 +224,28 @@ async function forget_password(req, res) {
         res.status(400).json(`${e}`);
     }
 }
-//return new token for updating user and the user inforamtion token and password required
-async function reset_password(req, res) {
+/* //return new token for updating user and the user inforamtion token and password required
+async function reset_password(req: Request, res: Response) {
     try {
-        const token = req.query.token;
-        const new_password = req.body.new_password;
-        const user = (0, jwtParsing_1.default)(token).user;
-        if (token) {
-            const permession = jsonwebtoken_1.default.verify(token, secret);
-            if (permession) {
-                const hash = bcrypt_1.default.hashSync(new_password + config_1.default.extra, parseInt(config_1.default.round));
+        const token = req.query.token as unknown as string;
+        const new_password = req.body.new_password as unknown as string;
+        const user = parseJwt(token);
+        if(token){
+            const permession = jwt.verify(token,secret);
+            if(permession){
+                const hash = bcrypt.hashSync(new_password + config.extra, parseInt(config.round as string));
                 user.password = hash;
-                const result = user_obj.update(user);
-                const newToken = jsonwebtoken_1.default.sign({ user: result }, secret);
-                res.status(200).json({ user: user, token: newToken });
-            }
-            else
+                const user = user_obj.update(await user);
+                const newToken = jwt.sign({ user: user }, secret);
+                res.status(200).json({user:user,token:newToken});
+            }else
                 res.status(400).json('user not exist');
-        }
-        else
+        }else
             res.status(400).json('token required.');
-    }
-    catch (e) {
+    } catch (e) {
         res.status(400).json(`${e}`);
     }
-}
+} */
 //main routes of user model
 function mainRoutes(app) {
     app.get('/users', index);
@@ -258,7 +254,7 @@ function mainRoutes(app) {
     // app.get('/users/:id/get_token', get_token);
     app.patch('/users/:id', update);
     app.post('/forget_password', forget_password);
-    app.post('/reset_password', reset_password);
+    //app.post('/reset_password', reset_password);
     app.delete('/users/:id', delete_);
 }
 exports.default = mainRoutes;

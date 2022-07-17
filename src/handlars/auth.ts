@@ -40,7 +40,7 @@ async function login(req: Request, res: Response) {
             if(resault.role == 'organization'){
                 const link_obj = new Links();
                 const li = await link_obj.show(resault.id as unknown as number);
-                return res.status(200).json({resault,token:user_token, link:li, role:'user'});
+                return res.status(200).json({user: resault,token:user_token, link:li, role:'user'});
             }
 
             return res.status(200).json({user:resault,token:user_token, role:'user'});
@@ -50,7 +50,7 @@ async function login(req: Request, res: Response) {
         {
             const resault = await admin_obj.auth(email,password);
             const user_token = jwt.sign({user:resault},secret);
-            return res.status(200).json({user:resault,token:user_token, role:'admin'});
+            return res.status(200).json({admin:resault,token:user_token, role:'admin'});
             
         }
         

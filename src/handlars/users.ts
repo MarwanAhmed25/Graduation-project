@@ -35,8 +35,8 @@ async function index(req: Request, res: Response) {
         }else return res.status(400).json('login required.');
 
         if(isAdmin){
-            const resault = await user_obj.index();
-            res.status(200).json(resault);
+            const user = await user_obj.index();
+            res.status(200).json(user);
         } 
     } catch (e) {
         res.status(400).json(`${e}`);
@@ -56,16 +56,16 @@ async function show(req: Request, res: Response) {
     try {
         
         const link_obj = new Links();
-        const resault = await user_obj.show(parseInt(req.params.id));
+        const user = await user_obj.show(parseInt(req.params.id));
         
-        if(resault == undefined)
+        if(user == undefined)
             return res.status(400).json('row not exist');
 
-        if(resault.role == 'organization'){
+        if(user.role == 'organization'){
             const li = await link_obj.show(parseInt(req.params.id));
-            return res.status(200).json({resault, link:li});
+            return res.status(200).json({user, link:li});
         }
-        return res.status(200).json(resault);
+        return res.status(200).json(user);
     
     } catch (e) {                
         return res.status(400).json(`${e}`);
@@ -134,7 +134,7 @@ async function update(req: Request, res: Response) {
         
         //update and return the new token of updated user
         const resualt = await user_obj.update(user_);
-        console.log(resualt);
+        //console.log(resualt);
         
         const new_token = jwt.sign({user:resualt},secret);
 
@@ -175,16 +175,16 @@ async function create(req: Request, res: Response) {
     
     //send user type to the database to create
     try {          
-        const resault = await user_obj.create(u);
-        const token = jwt.sign({ user: resault }, secret,{expiresIn: '7days'});
+        const user = await user_obj.create(u);
+        const token = jwt.sign({ user: user }, secret,{expiresIn: '7days'});
 
         if(role == 'organization'){
-            const link_ = (await link_obj.create(req.body.link, Number(resault.id))).link;
+            const link_ = (await link_obj.create(req.body.link, Number(user.id))).link;
             
-            return res.status(200).json({user:{resault, link_},token});
+            return res.status(200).json({user:{user, link_},token});
 
         }
-        res.status(200).json({user:resault,token});
+        res.status(200).json({user:user,token});
     } catch (e) {
         res.status(400).json(`${e}`);
     }
@@ -208,8 +208,8 @@ async function delete_(req: Request, res: Response) {
     //check if the request from super admin?
     if (permession && (id == parseInt(parseJwt(token).user.id))) {//if token exist and the request params.id == token user.id
         try {
-            const resault = await user_obj.delete(id); //delete user from database by id
-            res.status(200).json(resault); //return deleted
+            const user = await user_obj.delete(id); //delete user from database by id
+            res.status(200).json(user); //return deleted
         } catch (e) {
             res.status(400).json(`${e}`);
         }
@@ -222,13 +222,13 @@ async function forget_password(req: Request, res: Response) {
     try {
         const email = req.body.email as unknown as string;
         //check for the user with sending email
-        const resault = await user_obj.forget_password(email);
-        console.log(email, resault);
+        const user = await user_obj.forget_password(email);
+        console.log(email, user);
         
         //if user exist
-        if(resault){
-            if (resault.status!='suspended') {
-                const token = jwt.sign({ user: resault }, secret);
+        if(user){
+            if (user.status!='suspended') {
+                const token = jwt.sign({ user: user }, secret);
                 const url = ''; //url will provid from front end developer
                 const mailOptions = {
                     from: config.user_email,
@@ -254,19 +254,19 @@ async function forget_password(req: Request, res: Response) {
         res.status(400).json(`${e}`);
     }
 }
-//return new token for updating user and the user inforamtion token and password required
+/* //return new token for updating user and the user inforamtion token and password required
 async function reset_password(req: Request, res: Response) {
     try {
         const token = req.query.token as unknown as string;
         const new_password = req.body.new_password as unknown as string;
-        const user = parseJwt(token).user;
+        const user = parseJwt(token);
         if(token){
             const permession = jwt.verify(token,secret);
             if(permession){
                 const hash = bcrypt.hashSync(new_password + config.extra, parseInt(config.round as string));
                 user.password = hash;
-                const result = user_obj.update(user);
-                const newToken = jwt.sign({ user: result }, secret);
+                const user = user_obj.update(await user);
+                const newToken = jwt.sign({ user: user }, secret);
                 res.status(200).json({user:user,token:newToken});
             }else
                 res.status(400).json('user not exist');
@@ -275,7 +275,7 @@ async function reset_password(req: Request, res: Response) {
     } catch (e) {
         res.status(400).json(`${e}`);
     }
-}
+} */
 
 //main routes of user model
 function mainRoutes(app: Application) {
@@ -286,7 +286,7 @@ function mainRoutes(app: Application) {
     // app.get('/users/:id/get_token', get_token);
     app.patch('/users/:id', update);
     app.post('/forget_password', forget_password);
-    app.post('/reset_password', reset_password);
+    //app.post('/reset_password', reset_password);
     app.delete('/users/:id', delete_);
 }
 

@@ -30,14 +30,14 @@ async function login(req, res) {
             if (resault.role == 'organization') {
                 const link_obj = new links_1.Links();
                 const li = await link_obj.show(resault.id);
-                return res.status(200).json({ resault, token: user_token, link: li, role: 'user' });
+                return res.status(200).json({ user: resault, token: user_token, link: li, role: 'user' });
             }
             return res.status(200).json({ user: resault, token: user_token, role: 'user' });
         }
         else {
             const resault = await admin_obj.auth(email, password);
             const user_token = jsonwebtoken_1.default.sign({ user: resault }, secret);
-            return res.status(200).json({ user: resault, token: user_token, role: 'admin' });
+            return res.status(200).json({ admin: resault, token: user_token, role: 'admin' });
         }
     }
     catch (e) {

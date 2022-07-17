@@ -9,7 +9,7 @@ class Links {
     async index() {
         try {
             const conn = await database_1.default.connect();
-            const sql = 'select * from links;';
+            const sql = 'select link from links;';
             const res = await conn.query(sql);
             conn.release();
             return res.rows;
@@ -21,7 +21,7 @@ class Links {
     async show(user_id) {
         try {
             const conn = await database_1.default.connect();
-            const sql = 'select * from links where user_id =($1);';
+            const sql = 'select link from links where user_id =($1);';
             const res = await conn.query(sql, [user_id]);
             conn.release();
             return res.rows[0];

@@ -14,8 +14,8 @@ const charity_obj = new Charity();
 async function index(req: Request, res: Response) {
     
     try {
-        const resault = await charity_obj.index();
-        res.status(200).json(resault);
+        const result = await charity_obj.index();
+        res.status(200).json(result);
     } catch (e) {
         res.status(400).json(`${e}`);
     }
@@ -23,10 +23,10 @@ async function index(req: Request, res: Response) {
 //return only one brand from databse using id in request params
 async function show(req: Request, res: Response) {
     try {
-        const resault = await charity_obj.show(req.params.id as unknown as number);
-        if(resault == undefined)
+        const result = await charity_obj.show(req.params.id as unknown as number);
+        if(result == undefined)
             return res.status(400).json('row not exist');
-        res.status(200).json(resault);
+        res.status(200).json(result);
     } catch (e) {
         res.status(400).json(`${e}`);
     }
@@ -69,8 +69,8 @@ async function update(req: Request, res: Response) {
         if(c.remaining <= 0)
             c.status = 'compelete';
         //update new data to the database and return new data
-        const resault = await charity_obj.update(c);
-        res.status(200).json(resault);
+        const result = await charity_obj.update(c);
+        res.status(200).json(result);
 
     } catch (e) {
         res.status(400).json(`${e}`);
@@ -96,8 +96,8 @@ async function create(req: Request, res: Response) {
                 remaining: req.body.value_of_need
             };
             //create new brand to the database and return new data
-            const resault = await charity_obj.create(c);
-            res.status(200).json(resault);
+            const result = await charity_obj.create(c);
+            res.status(200).json(result);
         } else res.status(400).json('Not allowed this for you!!');
 
     } catch (e) {
@@ -114,8 +114,8 @@ async function delete_(req: Request, res: Response) {
         //delete brand from the database and return deleted
         //if admin or super admin the changes will occure to the brand
         if (permession) {
-            const resault = await charity_obj.delete(Number(req.params.id),us.user.id);
-            res.status(200).json(resault);
+            const result = await charity_obj.delete(Number(req.params.id),us.user.id);
+            res.status(200).json(result);
         } else res.status(400).json('Not allowed for you.');
 
     } catch (e) {

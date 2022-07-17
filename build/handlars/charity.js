@@ -15,8 +15,8 @@ const charity_obj = new charity_1.Charity();
 //return all brands in database
 async function index(req, res) {
     try {
-        const resault = await charity_obj.index();
-        res.status(200).json(resault);
+        const result = await charity_obj.index();
+        res.status(200).json(result);
     }
     catch (e) {
         res.status(400).json(`${e}`);
@@ -25,10 +25,10 @@ async function index(req, res) {
 //return only one brand from databse using id in request params
 async function show(req, res) {
     try {
-        const resault = await charity_obj.show(req.params.id);
-        if (resault == undefined)
+        const result = await charity_obj.show(req.params.id);
+        if (result == undefined)
             return res.status(400).json('row not exist');
-        res.status(200).json(resault);
+        res.status(200).json(result);
     }
     catch (e) {
         res.status(400).json(`${e}`);
@@ -68,8 +68,8 @@ async function update(req, res) {
         if (c.remaining <= 0)
             c.status = 'compelete';
         //update new data to the database and return new data
-        const resault = await charity_obj.update(c);
-        res.status(200).json(resault);
+        const result = await charity_obj.update(c);
+        res.status(200).json(result);
     }
     catch (e) {
         res.status(400).json(`${e}`);
@@ -93,8 +93,8 @@ async function create(req, res) {
                 remaining: req.body.value_of_need
             };
             //create new brand to the database and return new data
-            const resault = await charity_obj.create(c);
-            res.status(200).json(resault);
+            const result = await charity_obj.create(c);
+            res.status(200).json(result);
         }
         else
             res.status(400).json('Not allowed this for you!!');
@@ -112,8 +112,8 @@ async function delete_(req, res) {
         //delete brand from the database and return deleted
         //if admin or super admin the changes will occure to the brand
         if (permession) {
-            const resault = await charity_obj.delete(Number(req.params.id), us.user.id);
-            res.status(200).json(resault);
+            const result = await charity_obj.delete(Number(req.params.id), us.user.id);
+            res.status(200).json(result);
         }
         else
             res.status(400).json('Not allowed for you.');

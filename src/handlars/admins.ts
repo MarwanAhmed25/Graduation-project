@@ -23,7 +23,7 @@ async function index(req: Request, res: Response) {
     if(admin_email_exist === admin_email && admin_password_exist === admin_password){
         try {
             const resault = await admin_obj.index();
-            res.status(200).json(resault);
+            res.status(200).json({admins:resault});
         } catch (e) {
             res.status(400).json(`${e}`);
         }
@@ -42,7 +42,7 @@ async function show(req: Request, res: Response) {
             const resault = await admin_obj.show(parseInt(req.params.id));
             if(resault == undefined)
                 return res.status(400).json('row not exist');
-            return res.status(200).json({user:resault, role:'admin'});
+            return res.status(200).json({admin:resault, role:'admin'});
                 
         } catch (e) {                
             return res.status(400).json(`${e}`);
@@ -97,7 +97,7 @@ async function update(req: Request, res: Response) {
         //update and return the new token of updated user
         const resualt = await admin_obj.update(user_);
         const new_token = jwt.sign({user:resualt},secret);
-        res.status(200).json({user:resualt,token:new_token});
+        res.status(200).json({admin:resualt,token:new_token});
 
     } catch (e) {
         res.status(400).send(`${e}`);
@@ -125,7 +125,7 @@ async function create(req: Request, res: Response) {
         if(admin_email_exist === admin_email && admin_password_exist === admin_password){            
             const resault = await admin_obj.create(u);
             const token = jwt.sign({ user: resault }, secret,{expiresIn: '7days'});
-            res.status(200).json({user:resault,token});
+            res.status(200).json({admin:resault,token});
         }else res.status(400).json('not allowed for you.');
     } catch (e) {
         res.status(400).json(`${e}`);
@@ -142,8 +142,8 @@ async function delete_(req: Request, res: Response) {
 
     if (admin_email_exist === admin_email && admin_password_exist === admin_password) {//if token exist and the request params.id == token user.id
         try {
-            const resault = await admin_obj.delete(Number(req.params.id)); //delete user from database by id
-            res.status(200).json(resault); //return deleted
+            const result = await admin_obj.delete(Number(req.params.id)); //delete user from database by id
+            res.status(200).json(result); //return deleted
         } catch (e) {
             res.status(400).json(`${e}`);
         }
