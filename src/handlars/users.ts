@@ -36,7 +36,7 @@ async function index(req: Request, res: Response) {
 
         if(isAdmin){
             const user = await user_obj.index();
-            res.status(200).json(user);
+            res.status(200).json({users:user});
         } 
     } catch (e) {
         res.status(400).json(`${e}`);

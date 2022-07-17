@@ -32,7 +32,7 @@ async function index(req, res) {
             return res.status(400).json('login required.');
         if (isAdmin) {
             const user = await user_obj.index();
-            res.status(200).json(user);
+            res.status(200).json({ users: user });
         }
     }
     catch (e) {

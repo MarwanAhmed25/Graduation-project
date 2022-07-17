@@ -52,6 +52,8 @@ async function update(req: Request, res: Response) {
             
             if(req.body.description)
                 c.description = req.body.description;
+            if(req.body.intro)
+                c.description = req.body.intro;
             if(req.body.images)
                 c.images = req.body.images;
             if(req.body.type_id)
@@ -88,6 +90,7 @@ async function create(req: Request, res: Response) {
         if (permession) {
             const c: charity = {
                 images: req.body.images,
+                intro: req.body.intro,
                 description: req.body.description,
                 needy_id: Number(us.user.id),
                 status: 'pendding',
