@@ -42,6 +42,7 @@ async function update(req, res) {
         if (token) {
             permession = jsonwebtoken_1.default.verify(token, secret);
             us = (0, jwtParsing_1.default)(token);
+            console.log(us);
         }
         else
             return res.status(400).json('login required.');
@@ -49,11 +50,11 @@ async function update(req, res) {
         if (c == undefined)
             return res.status(400).json('row not exist');
         //if admin or super admin the changes will occure to the brand
-        if ((c.needy_id == us.user.id) && permession) {
+        if ((c.needy_id == us.user.admin_id) && permession) {
             if (req.body.description)
                 c.description = req.body.description;
             if (req.body.intro)
-                c.description = req.body.intro;
+                c.intro = req.body.intro;
             if (req.body.images)
                 c.images = req.body.images;
             if (req.body.type_id)
@@ -83,18 +84,20 @@ async function create(req, res) {
     try {
         const permession = jsonwebtoken_1.default.verify(token, secret);
         const us = (0, jwtParsing_1.default)(token);
+        //console.log(us.user);
         //if admin or super admin the changes will occure to the brand
         if (permession) {
             const c = {
                 images: req.body.images,
                 intro: req.body.intro,
                 description: req.body.description,
-                needy_id: Number(us.user.id),
+                needy_id: Number(us.user.admin_id),
                 status: 'pendding',
                 type_id: req.body.type_id,
                 value_of_need: req.body.value_of_need,
                 remaining: req.body.value_of_need
             };
+            //console.log(c);
             //create new brand to the database and return new data
             const result = await charity_obj.create(c);
             res.status(200).json(result);

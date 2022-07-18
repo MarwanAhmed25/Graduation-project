@@ -54,6 +54,7 @@ export class Charity {
     }
 
     async update(c: charity): Promise<charity> {
+        
         try {
             const conn = await Client.connect();
             const sql = 'update charity_case set description=($1),status=($2),images=($3),needy_id=($4),remaining=($6), value_of_need=($7),type_id=($8), intro=($9) where id=($5) RETURNING *;';

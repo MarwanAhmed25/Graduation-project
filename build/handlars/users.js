@@ -118,7 +118,7 @@ async function update(req, res) {
         const link_obj = new links_1.Links();
         if (resualt.role == 'organization') {
             const link_ = await link_obj.update(req.body.link, Number(resualt.id));
-            return res.status(200).json({ user: { resualt, link_ }, token });
+            return res.status(200).json({ user: { user: resualt, link: link_ }, token });
         }
         res.status(200).json({ user: resualt, token: new_token });
     }
@@ -147,10 +147,10 @@ async function create(req, res) {
     //send user type to the database to create
     try {
         const user = await user_obj.create(u);
-        const token = jsonwebtoken_1.default.sign({ user: user }, secret, { expiresIn: '7days' });
+        const token = jsonwebtoken_1.default.sign({ user: user }, secret);
         if (role == 'organization') {
             const link_ = (await link_obj.create(req.body.link, Number(user.id))).link;
-            return res.status(200).json({ user: { user, link_ }, token });
+            return res.status(200).json({ user: { user, link: link_ }, token });
         }
         res.status(200).json({ user: user, token });
     }
