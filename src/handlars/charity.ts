@@ -39,18 +39,14 @@ async function update(req: Request, res: Response) {
     try {
         
         if(token){
-            permession = jwt.verify(token,secret);
-            us = parseJwt(token);
-            console.log(us); 
-            
-        }else
-            return res.status(400).json('login required.');
-        
-        const c = await charity_obj.show(parseInt(req.params.id));
+           const permession = jwt.verify(token,secret);
+           const us = parseJwt(token);
+            //console.log(us); 
+            const c = await charity_obj.show(parseInt(req.params.id));
         if(c == undefined)
             return res.status(400).json('row not exist');
         //if admin or super admin the changes will occure to the brand
-        if ((c.needy_id == us.user.admin_id) && permession) {
+        if (us.user.admin_id && permession) {
             
             if(req.body.description)
                 c.description = req.body.description;
@@ -76,6 +72,11 @@ async function update(req: Request, res: Response) {
         const result = await charity_obj.update(c);
         res.status(200).json(result);
 
+            
+        }else
+            return res.status(400).json('login required.');
+        
+        
     } catch (e) {
         res.status(400).json(`${e}`);
     }

@@ -40,39 +40,39 @@ async function update(req, res) {
     let us, permession;
     try {
         if (token) {
-            permession = jsonwebtoken_1.default.verify(token, secret);
-            us = (0, jwtParsing_1.default)(token);
-            console.log(us);
+            const permession = jsonwebtoken_1.default.verify(token, secret);
+            const us = (0, jwtParsing_1.default)(token);
+            //console.log(us); 
+            const c = await charity_obj.show(parseInt(req.params.id));
+            if (c == undefined)
+                return res.status(400).json('row not exist');
+            //if admin or super admin the changes will occure to the brand
+            if (us.user.admin_id && permession) {
+                if (req.body.description)
+                    c.description = req.body.description;
+                if (req.body.intro)
+                    c.intro = req.body.intro;
+                if (req.body.images)
+                    c.images = req.body.images;
+                if (req.body.type_id)
+                    c.type_id = req.body.type_id;
+                if (req.body.amount) {
+                    //create or update rate [amount, c.id, volanteer_id]
+                    const rate_obj = new rate_1.Rate();
+                    rate_obj.update(Number(req.body.amount), Number(req.body.volanteer_id), Number(c.id));
+                    c.remaining = c.remaining - Number(req.body.amount);
+                }
+            }
+            else
+                res.status(400).json('Not allowed this for you!!');
+            if (c.remaining <= 0)
+                c.status = 'compelete';
+            //update new data to the database and return new data
+            const result = await charity_obj.update(c);
+            res.status(200).json(result);
         }
         else
             return res.status(400).json('login required.');
-        const c = await charity_obj.show(parseInt(req.params.id));
-        if (c == undefined)
-            return res.status(400).json('row not exist');
-        //if admin or super admin the changes will occure to the brand
-        if ((c.needy_id == us.user.admin_id) && permession) {
-            if (req.body.description)
-                c.description = req.body.description;
-            if (req.body.intro)
-                c.intro = req.body.intro;
-            if (req.body.images)
-                c.images = req.body.images;
-            if (req.body.type_id)
-                c.type_id = req.body.type_id;
-            if (req.body.amount) {
-                //create or update rate [amount, c.id, volanteer_id]
-                const rate_obj = new rate_1.Rate();
-                rate_obj.update(Number(req.body.amount), Number(req.body.volanteer_id), Number(c.id));
-                c.remaining = c.remaining - Number(req.body.amount);
-            }
-        }
-        else
-            res.status(400).json('Not allowed this for you!!');
-        if (c.remaining <= 0)
-            c.status = 'compelete';
-        //update new data to the database and return new data
-        const result = await charity_obj.update(c);
-        res.status(200).json(result);
     }
     catch (e) {
         res.status(400).json(`${e}`);
