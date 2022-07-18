@@ -37,7 +37,6 @@ async function show(req, res) {
 //update and return the brand with id in request params and data in request body
 async function update(req, res) {
     const token = req.headers.token;
-    let us, permession;
     try {
         if (token) {
             const permession = jsonwebtoken_1.default.verify(token, secret);
@@ -47,7 +46,7 @@ async function update(req, res) {
             if (c == undefined)
                 return res.status(400).json('row not exist');
             //if admin or super admin the changes will occure to the brand
-            if (us.user.admin_id && permession) {
+            if ((c.needy_id == us.user.id) && permession) {
                 if (req.body.description)
                     c.description = req.body.description;
                 if (req.body.intro)
