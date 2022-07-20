@@ -3,9 +3,6 @@ import jwt from 'jsonwebtoken';
 import { Charity, charity } from '../models/charity';
 import parseJwt from '../utils/jwtParsing';
 import config_ from '../config/config';
-import { Rate } from '../models/rate';
-//import { middelware } from '../service/middelware';
-//import { brandSchema } from '../service/validation';
 
 
 const secret: string = config_.token as unknown as string;
@@ -56,12 +53,7 @@ async function update(req: Request, res: Response) {
             if(req.body.type_id)
                 c.type_id = req.body.type_id;
 
-            if(req.body.amount){
-                //create or update rate [amount, c.id, volanteer_id]
-                const rate_obj = new Rate();
-                rate_obj.update(Number(req.body.amount), Number(req.body.volanteer_id), Number(c.id));
-                c.remaining = c.remaining - Number(req.body.amount);
-            }
+            
         } else res.status(400).json('Not allowed this for you!!');
 
 

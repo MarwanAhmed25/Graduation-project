@@ -10,6 +10,7 @@ import linksRoutes from './handlars/links';
 import commentsRoutes from './handlars/comments';
 import charityRoutes from './handlars/charity';
 import adminsRoutes from './handlars/admins';
+import paymentRoute from './handlars/volanteer_history';
 dotenv.config();
 
 //initial port and app
@@ -36,6 +37,7 @@ linksRoutes(app);
 commentsRoutes(app);
 charityRoutes(app);
 adminsRoutes(app);
+paymentRoute(app);
 auth(app);
 //export the app to use when importing the file
 export default app;

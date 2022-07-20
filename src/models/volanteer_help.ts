@@ -9,14 +9,13 @@ export type volant = {
     number_of_help: number;
     volanteer_id: number;
     total_help:number;
-    charity_case_id:number;
   };
 
 export class Rate {
     async index(): Promise<volant[]> {
         try {
             const conn = await Client.connect();
-            const sql = 'select * from volanteer_rate;';
+            const sql = 'select * from volanteer_help;';
             const res = await conn.query(sql);
             conn.release();
             return res.rows;
@@ -28,7 +27,7 @@ export class Rate {
     async show(volanteer_id: number): Promise<volant> {
         try {
             const conn = await Client.connect();
-            const sql = 'select * from volanteer_rate where volanteer_id =($1);';
+            const sql = 'select * from volanteer_help where volanteer_id =($1);';
             const res = await conn.query(sql, [volanteer_id]);
             conn.release();
             return res.rows[0];
@@ -41,8 +40,8 @@ export class Rate {
         try {
             const conn = await Client.connect();
             const sql =
-        'insert into volanteer_rate (charity_case_id, number_of_help, total_help, volanteer_id) values($1, $2, $3,$4)RETURNING *;';
-            const res = await conn.query(sql, [t.charity_case_id, t.number_of_help, t.total_help, t.volanteer_id]);
+        'insert into volanteer_help (number_of_help, total_help, volanteer_id) values($1, $2, $3)RETURNING *;';
+            const res = await conn.query(sql, [ t.number_of_help, t.total_help, t.volanteer_id]);
             conn.release();
             return res.rows[0];
         } catch (e) {
@@ -50,7 +49,7 @@ export class Rate {
         }
     }
 
-    async update(amount:number, volanteer_id:number, charity_case_id:number): Promise<volant> {
+    async update(amount:number, volanteer_id:number): Promise<volant> {
         
         try {
 
@@ -62,15 +61,14 @@ export class Rate {
                 const t_create:volant ={
                     number_of_help: 1,
                     volanteer_id: volanteer_id,
-                    total_help: amount,
-                    charity_case_id: charity_case_id
+                    total_help: amount
                 }; 
                 return this.create(t_create);
             }
 
             const conn = await Client.connect();
             const sql =
-        'update volanteer_rate set number_of_help=($2), total_help=($3) where id=($5) RETURNING *; ';
+        'update volanteer_help set number_of_help=($2), total_help=($3) where id=($5) RETURNING *; ';
             const res = await conn.query(sql, [t.number_of_help, t.total_help, t.id]);
             conn.release();
             return res.rows[0];
@@ -82,7 +80,7 @@ export class Rate {
     async delete(id: number): Promise<string> {
         try {
             const conn = await Client.connect();
-            const sql = 'delete from volanteer_rate where id =($1);';
+            const sql = 'delete from volanteer_help where id =($1);';
             await conn.query(sql, [id]);
             conn.release();
             return 'deleted';

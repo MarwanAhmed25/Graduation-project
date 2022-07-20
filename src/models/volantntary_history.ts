@@ -4,19 +4,18 @@ import Client from '../database';
 
 
 
-export type volant = {
+export type volantntary_history = {
     id?: number;
-    number_of_help: number;
     volanteer_id: number;
-    total_help:number;
+    amount:number;
     charity_case_id:number;
   };
 
-export class Rate {
-    async index(): Promise<volant[]> {
+export class VolantntaryHistory {
+    async index(): Promise<volantntary_history[]> {
         try {
             const conn = await Client.connect();
-            const sql = 'select * from volanteer_rate;';
+            const sql = 'select * from volantntary_history;';
             const res = await conn.query(sql);
             conn.release();
             return res.rows;
@@ -25,11 +24,23 @@ export class Rate {
         }
     }
 
-    async show(volanteer_id: number): Promise<volant> {
+    async show(volanteer_id: number): Promise<volantntary_history[]> {
         try {
             const conn = await Client.connect();
-            const sql = 'select * from volanteer_rate where volanteer_id =($1);';
+            const sql = 'select * from volantntary_history where volanteer_id =($1);';
             const res = await conn.query(sql, [volanteer_id]);
+            conn.release();
+            return res.rows;
+        } catch (e) {
+            throw new Error(`${e}`);
+        }
+    }
+
+    async show_one(volanteer_id: number, charity_case_id:number): Promise<volantntary_history> {
+        try {
+            const conn = await Client.connect();
+            const sql = 'select * from volantntary_history where volanteer_id =($1) and charity_case_id=($2);';
+            const res = await conn.query(sql, [volanteer_id, charity_case_id]);
             conn.release();
             return res.rows[0];
         } catch (e) {
@@ -37,12 +48,12 @@ export class Rate {
         }
     }
 
-    async create(t: volant): Promise<volant> {
+    async create(t: volantntary_history): Promise<volantntary_history> {
         try {
             const conn = await Client.connect();
             const sql =
-        'insert into volanteer_rate (charity_case_id, number_of_help, total_help, volanteer_id) values($1, $2, $3,$4)RETURNING *;';
-            const res = await conn.query(sql, [t.charity_case_id, t.number_of_help, t.total_help, t.volanteer_id]);
+        'insert into volantntary_history (charity_case_id, amount, volanteer_id) values($1, $2, $3)RETURNING *;';
+            const res = await conn.query(sql, [t.charity_case_id, t.amount, t.volanteer_id]);
             conn.release();
             return res.rows[0];
         } catch (e) {
@@ -50,14 +61,13 @@ export class Rate {
         }
     }
 
-    async update(amount:number, volanteer_id:number, charity_case_id:number): Promise<volant> {
+/*     async update(amount:number, volanteer_id:number, charity_case_id:number): Promise<volantntary_history> {
         
         try {
 
-            const t = await this.show(volanteer_id);
+            const t = await this.show_one(volanteer_id, charity_case_id);
             if(t){
-                t.number_of_help = t.number_of_help + 1;
-                t.total_help = t.total_help + amount;
+                t.amount = t.total_he amount;
             }else{
                 const t_create:volant ={
                     number_of_help: 1,
@@ -70,19 +80,19 @@ export class Rate {
 
             const conn = await Client.connect();
             const sql =
-        'update volanteer_rate set number_of_help=($2), total_help=($3) where id=($5) RETURNING *; ';
+        'update volantntary_history set number_of_help=($2), total_help=($3) where id=($5) RETURNING *; ';
             const res = await conn.query(sql, [t.number_of_help, t.total_help, t.id]);
             conn.release();
             return res.rows[0];
         } catch (e) {
             throw new Error(`${e}`);
         }
-    }
+    } */
     
     async delete(id: number): Promise<string> {
         try {
             const conn = await Client.connect();
-            const sql = 'delete from volanteer_rate where id =($1);';
+            const sql = 'delete from volantntary_history where id =($1);';
             await conn.query(sql, [id]);
             conn.release();
             return 'deleted';
