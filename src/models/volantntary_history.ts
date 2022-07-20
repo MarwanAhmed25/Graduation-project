@@ -15,7 +15,7 @@ export class VolantntaryHistory {
     async index(): Promise<volantntary_history[]> {
         try {
             const conn = await Client.connect();
-            const sql = 'select * from volantntary_history;';
+            const sql = 'select * from volantary_history;';
             const res = await conn.query(sql);
             conn.release();
             return res.rows;
@@ -27,7 +27,7 @@ export class VolantntaryHistory {
     async show(volanteer_id: number): Promise<volantntary_history[]> {
         try {
             const conn = await Client.connect();
-            const sql = 'select * from volantntary_history where volanteer_id =($1);';
+            const sql = 'select * from volantary_history where volanteer_id =($1);';
             const res = await conn.query(sql, [volanteer_id]);
             conn.release();
             return res.rows;
@@ -39,7 +39,7 @@ export class VolantntaryHistory {
     async show_one(volanteer_id: number, charity_case_id:number): Promise<volantntary_history> {
         try {
             const conn = await Client.connect();
-            const sql = 'select * from volantntary_history where volanteer_id =($1) and charity_case_id=($2);';
+            const sql = 'select * from volantary_history where volanteer_id =($1) and charity_case_id=($2);';
             const res = await conn.query(sql, [volanteer_id, charity_case_id]);
             conn.release();
             return res.rows[0];
@@ -52,7 +52,7 @@ export class VolantntaryHistory {
         try {
             const conn = await Client.connect();
             const sql =
-        'insert into volantntary_history (charity_case_id, amount, volanteer_id) values($1, $2, $3)RETURNING *;';
+        'insert into volantary_history (charity_case_id, amount, volanteer_id) values($1, $2, $3)RETURNING *;';
             const res = await conn.query(sql, [t.charity_case_id, t.amount, t.volanteer_id]);
             conn.release();
             return res.rows[0];
@@ -92,7 +92,7 @@ export class VolantntaryHistory {
     async delete(id: number): Promise<string> {
         try {
             const conn = await Client.connect();
-            const sql = 'delete from volantntary_history where id =($1);';
+            const sql = 'delete from volantary_history where id =($1);';
             await conn.query(sql, [id]);
             conn.release();
             return 'deleted';
