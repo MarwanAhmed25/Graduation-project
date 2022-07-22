@@ -9,16 +9,18 @@ export type comment = {
     created_time?:Date;
     user_id?:number;
     charity_id?:number;
+    intro:string;
   };
 
 
 export class Comment {
-    async index(user_id:number): Promise<comment[]> {
+    async index(charity_id:number): Promise<comment[]> {
+        console.log();
         
         try {
             const conn = await Client.connect();
-            const sql = 'select * from comment where user_id=($1);';
-            const res = await conn.query(sql,[user_id]);
+            const sql = 'select * from comment where charity_id=($1);';
+            const res = await conn.query(sql,[charity_id]);
             console.log(res.rows);
             
             conn.release();
@@ -28,11 +30,11 @@ export class Comment {
         }
     }
 
-    async show(user_id: number, id:number): Promise<comment> {
+    async show(charity_id: number, id:number): Promise<comment> {
         try {
             const conn = await Client.connect();
-            const sql = 'select * from comment where id =($1) and product_id=($2);';
-            const res = await conn.query(sql, [id,user_id]);
+            const sql = 'select * from comment where id =($1) and charity_id=($2);';
+            const res = await conn.query(sql, [id,charity_id]);
             conn.release();
             return res.rows[0];
         } catch (e) {
@@ -43,8 +45,8 @@ export class Comment {
     async create(c: comment): Promise<comment> {
         try {            
             const conn = await Client.connect();
-            const sql = 'insert into comment (message,created_time,user_id,charity_id) values($1,$2,$3,$4)RETURNING *;';
-            const res = await conn.query(sql, [c.message,new Date(),c.user_id,c.charity_id]);
+            const sql = 'insert into comment (message,created_time,user_id,charity_id, intro) values($1,$2,$3,$4,$5)RETURNING *;';
+            const res = await conn.query(sql, [c.message,new Date(),c.user_id,c.charity_id, c.intro]);
             conn.release();
             return res.rows[0];
         } catch (e) {
@@ -55,8 +57,8 @@ export class Comment {
     async update(c: comment): Promise<comment> {
         try {
             const conn = await Client.connect();
-            const sql = 'update comment set message=($1),charity_id=($3) where id=($4) and user_id=($2) RETURNING *; ';
-            const res = await conn.query(sql, [c.message,c.user_id,c.charity_id, c.id]);
+            const sql = 'update comment set message=($1),charity_id=($3), intro=($5) where id=($4) and user_id=($2) RETURNING *; ';
+            const res = await conn.query(sql, [c.message,c.user_id,c.charity_id, c.id, c.intro]);
             conn.release();
             return res.rows[0];
         } catch (e) {

@@ -57,6 +57,11 @@ async function update(req: Request, res: Response) {
             if(req.body.message)  
                 c.message = req.body.message;
 
+            if(req.body.intro)  
+                c.intro = req.body.intro;
+ 
+                console.log(c);
+                
             //update and return new comment data
             const result = await comment_obj.update(c);
             res.status(200).json(result);
@@ -92,6 +97,7 @@ async function create(req: Request, res: Response) {
         if (isTrue) {
             const c: comment = {
                 message:req.body.message,
+                intro:req.body.intro,
                 user_id:id,
                 charity_id:Number(req.params.charity_id),
             };
