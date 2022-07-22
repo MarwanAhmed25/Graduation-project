@@ -7,9 +7,6 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const charity_1 = require("../models/charity");
 const jwtParsing_1 = __importDefault(require("../utils/jwtParsing"));
 const config_1 = __importDefault(require("../config/config"));
-const rate_1 = require("../models/rate");
-//import { middelware } from '../service/middelware';
-//import { brandSchema } from '../service/validation';
 const secret = config_1.default.token;
 const charity_obj = new charity_1.Charity();
 //return all brands in database
@@ -55,12 +52,6 @@ async function update(req, res) {
                     c.images = req.body.images;
                 if (req.body.type_id)
                     c.type_id = req.body.type_id;
-                if (req.body.amount) {
-                    //create or update rate [amount, c.id, volanteer_id]
-                    const rate_obj = new rate_1.Rate();
-                    rate_obj.update(Number(req.body.amount), Number(req.body.volanteer_id), Number(c.id));
-                    c.remaining = c.remaining - Number(req.body.amount);
-                }
             }
             else
                 res.status(400).json('Not allowed this for you!!');
@@ -90,7 +81,7 @@ async function create(req, res) {
                 images: req.body.images,
                 intro: req.body.intro,
                 description: req.body.description,
-                needy_id: Number(us.user.admin_id),
+                needy_id: Number(us.user.id),
                 status: 'pendding',
                 type_id: req.body.type_id,
                 value_of_need: req.body.value_of_need,

@@ -9,7 +9,7 @@ class Rate {
     async index() {
         try {
             const conn = await database_1.default.connect();
-            const sql = 'select * from volanteer_rate;';
+            const sql = 'select * from volanteer_help;';
             const res = await conn.query(sql);
             conn.release();
             return res.rows;
@@ -21,7 +21,7 @@ class Rate {
     async show(volanteer_id) {
         try {
             const conn = await database_1.default.connect();
-            const sql = 'select * from volanteer_rate where volanteer_id =($1);';
+            const sql = 'select * from volanteer_help where volanteer_id =($1);';
             const res = await conn.query(sql, [volanteer_id]);
             conn.release();
             return res.rows[0];
@@ -33,8 +33,8 @@ class Rate {
     async create(t) {
         try {
             const conn = await database_1.default.connect();
-            const sql = 'insert into volanteer_rate (charity_case_id, number_of_help, total_help, volanteer_id) values($1, $2, $3,$4)RETURNING *;';
-            const res = await conn.query(sql, [t.charity_case_id, t.number_of_help, t.total_help, t.volanteer_id]);
+            const sql = 'insert into volanteer_help (number_of_help, total_help, volanteer_id) values($1, $2, $3)RETURNING *;';
+            const res = await conn.query(sql, [t.number_of_help, t.total_help, t.volanteer_id]);
             conn.release();
             return res.rows[0];
         }
@@ -42,7 +42,7 @@ class Rate {
             throw new Error(`${e}`);
         }
     }
-    async update(amount, volanteer_id, charity_case_id) {
+    async update(amount, volanteer_id) {
         try {
             const t = await this.show(volanteer_id);
             if (t) {
@@ -53,13 +53,12 @@ class Rate {
                 const t_create = {
                     number_of_help: 1,
                     volanteer_id: volanteer_id,
-                    total_help: amount,
-                    charity_case_id: charity_case_id
+                    total_help: amount
                 };
                 return this.create(t_create);
             }
             const conn = await database_1.default.connect();
-            const sql = 'update volanteer_rate set number_of_help=($2), total_help=($3) where id=($5) RETURNING *; ';
+            const sql = 'update volanteer_help set number_of_help=($2), total_help=($3) where id=($5) RETURNING *; ';
             const res = await conn.query(sql, [t.number_of_help, t.total_help, t.id]);
             conn.release();
             return res.rows[0];
@@ -71,7 +70,7 @@ class Rate {
     async delete(id) {
         try {
             const conn = await database_1.default.connect();
-            const sql = 'delete from volanteer_rate where id =($1);';
+            const sql = 'delete from volanteer_help where id =($1);';
             await conn.query(sql, [id]);
             conn.release();
             return 'deleted';

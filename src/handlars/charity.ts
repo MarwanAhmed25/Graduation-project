@@ -88,7 +88,7 @@ async function create(req: Request, res: Response) {
                 images: req.body.images,
                 intro: req.body.intro,
                 description: req.body.description,
-                needy_id: Number(us.user.admin_id),
+                needy_id: Number(us.user.id),
                 status: 'pendding',
                 type_id: req.body.type_id,
                 value_of_need: req.body.value_of_need,
