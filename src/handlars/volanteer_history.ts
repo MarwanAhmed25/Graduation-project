@@ -56,6 +56,8 @@ async function create(req: Request, res: Response) {
 
             const charity_exist = await charity_obj.show(req.body.charity_case_id);
             charity_exist.remaining = charity_exist.remaining - amount;
+            if(charity_exist.remaining <= 0)
+                charity_exist.status = 'compelete';
             await charity_obj.update(charity_exist);
 
             res.status(200).json(result);

@@ -57,8 +57,7 @@ async function update(req: Request, res: Response) {
         } else res.status(400).json('Not allowed this for you!!');
 
 
-        if(c.remaining <= 0)
-            c.status = 'compelete';
+        
         //update new data to the database and return new data
         const result = await charity_obj.update(c);
         res.status(200).json(result);
