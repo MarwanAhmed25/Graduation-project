@@ -7,10 +7,8 @@ const nodemailer_1 = __importDefault(require("nodemailer"));
 const users_1 = require("../models/users");
 const jwtParsing_1 = __importDefault(require("../utils/jwtParsing"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const isAdmin_1 = __importDefault(require("../utils/isAdmin"));
 const config_1 = __importDefault(require("../config/config"));
 const links_1 = require("../models/links");
-const jwt_decode_1 = __importDefault(require("jwt-decode"));
 const secret = config_1.default.token;
 const user_obj = new users_1.User();
 const transporter = nodemailer_1.default.createTransport({
@@ -22,18 +20,9 @@ const transporter = nodemailer_1.default.createTransport({
 });
 //return a json data for all users in database [allowed only for admins]
 async function index(req, res) {
-    const token = req.headers.token;
-    let isAdmin = false;
     try {
-        if (token) {
-            isAdmin = (0, isAdmin_1.default)('', '', token);
-        }
-        else
-            return res.status(400).json('login required.');
-        if (isAdmin) {
-            const user = await user_obj.index();
-            res.status(200).json({ users: user });
-        }
+        const user = await user_obj.index();
+        res.status(200).json({ users: user });
     }
     catch (e) {
         res.status(400).json(`${e}`);
@@ -41,11 +30,6 @@ async function index(req, res) {
 }
 //return json data for a sungle user [allowed only for admins or user it self]
 async function show(req, res) {
-    const token = req.headers.token;
-    let isAdmin = false;
-    const x = (0, jwt_decode_1.default)(token);
-    const user = JSON.parse(JSON.stringify(x)).user;
-    console.log(user.id);
     try {
         const link_obj = new links_1.Links();
         const user = await user_obj.show(parseInt(req.params.id));

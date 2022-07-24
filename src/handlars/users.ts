@@ -26,18 +26,12 @@ const transporter = nodemailer.createTransport({
 
 //return a json data for all users in database [allowed only for admins]
 async function index(req: Request, res: Response) {
-    const token = req.headers.token as unknown as string;
-    let isAdmin = false;
     
     try {
-        if(token){
-            isAdmin = isAdminFun('','',token);
-        }else return res.status(400).json('login required.');
-
-        if(isAdmin){
+       
             const user = await user_obj.index();
             res.status(200).json({users:user});
-        } 
+        
     } catch (e) {
         res.status(400).json(`${e}`);
     }
@@ -45,13 +39,7 @@ async function index(req: Request, res: Response) {
 }
 //return json data for a sungle user [allowed only for admins or user it self]
 async function show(req: Request, res: Response) {
-    const token = req.headers.token as unknown as string;
-    let isAdmin = false;
 
-
-    const x = jwtDecode(token);
-    const user = JSON.parse(JSON.stringify(x)).user;
-    console.log(user.id);
 
     try {
         
